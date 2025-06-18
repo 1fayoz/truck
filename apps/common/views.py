@@ -1,4 +1,4 @@
-from rest_framework import viewsets, views
+from rest_framework import viewsets, views, generics
 from rest_framework.response import Response
 
 from apps.common import models
@@ -67,3 +67,14 @@ class FAQViewSet(viewsets.ModelViewSet):
         if self.request.method == 'POST':
             return serializers.FAQSerializerCreate
         return serializers.FAQSerializer
+
+
+class ClubMemberListAPIView(generics.ListCreateAPIView):
+    queryset = models.ClubMember.objects.filter(is_active=True)
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.ClubMemberSerializerCreate
+        return serializers.ClubMemberSerializer
+
+

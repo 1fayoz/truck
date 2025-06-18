@@ -203,3 +203,160 @@ class FAQSerializerCreate(serializers.ModelSerializer):
         fields = ('id', 'question_uz', 'question_en', 'question_ru',
                   'answer_uz', 'answer_en', 'answer_ru', 'link'
                   )
+
+
+class SocialLinkSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.SocialLink
+        fields = ('id', 'url', 'name')
+
+    def get_name(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'name', request)
+
+
+class SocialLinkSerializerCreate(serializers.ModelSerializer):
+    name_uz = serializers.CharField(required=True)
+    name_en = serializers.CharField(required=True)
+    name_ru = serializers.CharField(required=True)
+
+    class Meta:
+        model = models.SocialLink
+        fields = ('id', 'url', 'name_uz', 'name_en', 'name_ru')
+
+
+class MetricSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Metric
+        fields = ('id', 'type', 'title', 'revenue', 'employee_count',
+                  'project_count'
+                  )
+
+    def get_title(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'title', request)
+
+
+class MetricSerializerCreate(serializers.ModelSerializer):
+    title_uz = serializers.CharField(required=True)
+    title_en = serializers.CharField(required=True)
+    title_ru = serializers.CharField(required=True)
+
+    class Meta:
+        model = models.Metric
+        fields = ('id', 'type', 'title_uz', 'title_en', 'title_ru',
+                  'revenue', 'employee_count', 'project_count'
+                  )
+
+
+class ClubMemberSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+    employee_count = serializers.SerializerMethodField()
+    project_count = serializers.SerializerMethodField()
+    revenue = serializers.SerializerMethodField()
+    company = serializers.SerializerMethodField()
+    position = serializers.SerializerMethodField()
+    social_links = SocialLinkSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = models.ClubMember
+        fields = ('id', 'full_name', 'experience', 'employee_count',
+                  'project_count', 'revenue', 'company', 'position',
+                  'image', 'social_links'
+                  )
+
+    def get_full_name(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'name', request)
+
+    @staticmethod
+    def get_employee_count(obj):
+        metric = obj.metric.filter(is_active=True, type='after').last()
+        if not metric:
+            return 0
+        return metric.employee_count
+
+    @staticmethod
+    def get_project_count(obj):
+        metric = obj.metric.filter(is_active=True, type='after').last()
+        if not metric:
+            return 0
+        return metric.project_count or 0
+
+    @staticmethod
+    def get_revenue(obj):
+        metric = obj.metric.filter(is_active=True, type='after').last()
+        if not metric:
+            return 0
+        return metric.revenue or 0
+
+    def get_company(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'company', request)
+
+    def get_position(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'position', request)
+
+
+class ClubMemberSerializerCreate(serializers.ModelSerializer):
+    name_uz = serializers.CharField(required=True)
+    name_en = serializers.CharField(required=True)
+    name_ru = serializers.CharField(required=True)
+
+    company_uz = serializers.CharField(required=True)
+    company_en = serializers.CharField(required=True)
+    company_ru = serializers.CharField(required=True)
+
+    position_uz = serializers.CharField(required=True)
+    position_en = serializers.CharField(required=True)
+    position_ru = serializers.CharField(required=True)
+
+    bio_uz = serializers.CharField(required=True)
+    bio_ru = serializers.CharField(required=True)
+    bio_en = serializers.CharField(required=True)
+
+    age = serializers.IntegerField(required=True)
+    image = serializers.URLField(required=True)
+    join_date = serializers.DateField(required=True)
+    experience = serializers.IntegerField(required=True)
+    type = serializers.ChoiceField(models.ClubMember.TypeChoice)
+    degree = serializers.ChoiceField(models.ClubMember.DegreeChoice)
+
+    industry = serializers.PrimaryKeyRelatedField(
+        queryset=models.Industry.objects.filter(is_active=True),
+    )
+    social_links = SocialLinkSerializerCreate(many=True, write_only=True)
+    metric = MetricSerializerCreate(many=True, write_only=True)
+
+    class Meta:
+        model = models.ClubMember
+        fields = ('name_uz', 'name_en', 'name_ru', 'company_uz', 'company_en', 'company_ru',
+                  'position_uz', 'position_en', 'position_ru', 'bio_ru', 'bio_en', 'bio_uz',
+                  'age', 'image', 'join_date', 'experience', 'type', 'degree', 'industry',
+                  'social_links', 'metric'
+                  )
+
+    def create(self, validated_data):
+        social_links_data = validated_data.pop('social_links', [])
+        metric_data = validated_data.pop('metric', [])
+
+        club_member = models.ClubMember.objects.create(**validated_data)
+
+        social_links = [
+            models.SocialLink(member=club_member, **link_data)
+            for link_data in social_links_data
+        ]
+        models.SocialLink.objects.bulk_create(social_links)
+
+        metrics = [
+            models.Metric(member=club_member, **metric)
+            for metric in metric_data
+        ]
+        models.Metric.objects.bulk_create(metrics)
+
+        return club_member

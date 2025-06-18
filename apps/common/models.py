@@ -16,7 +16,7 @@ class ClubMember(BaseModel, NameTranslation, CompanyTranslation, BioTranslation,
         EXPERT = 'expert', "Expert"
 
     age = models.IntegerField()
-
+    image = models.URLField(null=True, blank=True)
     join_date = models.DateField()
     experience = models.IntegerField()
     type = models.CharField(max_length=255, choices=TypeChoice.choices, default=TypeChoice.MEMBER)
@@ -32,7 +32,7 @@ class Autobiography(BaseModel, DescriptionTranslation):
 
 class SocialLink(BaseModel, NameTranslation):
     url = models.CharField(max_length=255)
-    member = models.ForeignKey(ClubMember, on_delete=models.CASCADE)
+    member = models.ForeignKey(ClubMember, on_delete=models.CASCADE, related_name='social_links')
 
 
 class Metric(BaseModel, TitleTranslation):
@@ -43,7 +43,7 @@ class Metric(BaseModel, TitleTranslation):
     revenue = models.BigIntegerField()
     employee_count = models.IntegerField()
     project_count = models.IntegerField()
-    member = models.ForeignKey(ClubMember, on_delete=models.CASCADE)
+    member = models.ForeignKey(ClubMember, on_delete=models.CASCADE, related_name='metric')
     type = models.CharField(max_length=255, choices=MetricType.choices, default=MetricType.BEFORE)
 
 

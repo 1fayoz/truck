@@ -13,5 +13,6 @@ router.register('faq', views.FAQViewSet, basename='faq')
 urlpatterns = [
     path('club/stats/', views.ClubStatisticsAPIView.as_view()),
     path('industry-distribution/', views.IndustryDistributionAPIView.as_view()),
+    path('club/members/', views.ClubMemberListAPIView.as_view())
 ]
 urlpatterns += router.urls
