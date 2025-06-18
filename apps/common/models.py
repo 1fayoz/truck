@@ -84,7 +84,7 @@ class TravelCountry(BaseModel, NameTranslation):
     pass
 
 
-class Travel(BaseModel, TitleTranslation, DescriptionTranslation, ShortDescriptionTranslation):
+class Travel(BaseModel, DescriptionTranslation, ShortDescriptionTranslation):
     class TravelStatus(models.TextChoices):
         PENDING = 'pending', "Pending"
         WAITING = 'waiting', "Waiting"
@@ -113,9 +113,9 @@ class Images(BaseModel):
     type = models.CharField(max_length=255, choices=ImageType.choices, default=ImageType.NEW)
     image = models.URLField()
 
-    travel = models.ForeignKey(Travel, on_delete=models.SET_NULL, null=True)
-    news = models.ForeignKey(News, on_delete=models.SET_NULL, null=True)
-    gallery = models.ForeignKey("Gallery", on_delete=models.SET_NULL, null=True)
+    travel = models.ForeignKey(Travel, on_delete=models.SET_NULL, null=True, related_name='images')
+    news = models.ForeignKey(News, on_delete=models.SET_NULL, null=True, related_name='images')
+    gallery = models.ForeignKey("Gallery", on_delete=models.SET_NULL, null=True, related_name='images')
 
     is_main = models.BooleanField(default=False)
 

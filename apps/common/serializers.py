@@ -399,7 +399,8 @@ class ClubMemberSerializerCreate(serializers.ModelSerializer):
         for metric in metric_data:
             metric_type = metric.get('type')
             if metric_type in types_seen:
-                msg_template = utils.ERROR_MESSAGES['duplicate_type'].get(lang, utils.ERROR_MESSAGES['duplicate_type']['uz'])
+                msg_template = utils.ERROR_MESSAGES['duplicate_type'].get(lang,
+                                                                          utils.ERROR_MESSAGES['duplicate_type']['uz'])
                 raise serializers.ValidationError(msg_template.format(type=metric_type))
             types_seen.add(metric_type)
 
@@ -418,3 +419,26 @@ class ClubMemberSerializerCreate(serializers.ModelSerializer):
         models.Metric.objects.bulk_create(metrics)
 
         return club_member
+
+
+class TravelSerializer(serializers.ModelSerializer):
+    country = serializers.SerializerMethodField()
+    short_description = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Travel
+        fields = ('id', 'country', 'view_count', 'status', 'short_description', 'created_at', 'image')
+
+    @staticmethod
+    def get_image(obj):
+        main_image = obj.images.filter(is_main=True, type='travel', is_active=True).order_by('-created_at').first()
+        return main_image.image if main_image else None
+
+    def get_country(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj.country, 'name', request) if obj.country else None
+
+    def get_short_description(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'short_description', request)

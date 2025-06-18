@@ -15,5 +15,6 @@ urlpatterns = [
     path('industry-distribution/', views.IndustryDistributionAPIView.as_view()),
     path('club/members/', views.ClubMemberListAPIView.as_view()),
     path('club/members/<int:pk>/', views.ClubMemberDetailRetrieveAPIView.as_view()),
+    path('travel/', views.TravelListAPIView.as_view()),
 ]
 urlpatterns += router.urls

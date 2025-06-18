@@ -1,3 +1,4 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, views, generics
 from rest_framework.response import Response
 
@@ -81,3 +82,14 @@ class ClubMemberListAPIView(generics.ListCreateAPIView):
 class ClubMemberDetailRetrieveAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.ClubMember.objects.filter(is_active=True, type='member')
     serializer_class = serializers.ClubMemberDetailSerializer
+
+
+class TravelListAPIView(generics.ListCreateAPIView):
+    queryset = models.Travel.objects.filter(is_active=True)
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['status']
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.TravelSerializer
+        return serializers.TravelSerializer
