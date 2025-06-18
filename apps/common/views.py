@@ -1,4 +1,4 @@
-from rest_framework import viewsets, generics, views
+from rest_framework import viewsets, views
 from rest_framework.response import Response
 
 from apps.common import models
