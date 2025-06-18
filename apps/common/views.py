@@ -1,4 +1,5 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, generics, views
+from rest_framework.response import Response
 
 from apps.common import models
 from apps.common import serializers
@@ -23,3 +24,11 @@ class ClubOfferViewSet(viewsets.ModelViewSet):
         if self.request.method == 'POST':
             return serializers.ClubOfferSerializerCreate
         return serializers.ClubOfferSerializer
+
+
+class ClubStatisticsAPIView(views.APIView):
+
+    @staticmethod
+    def get(request):
+        serializer = serializers.ClubStatisticsSerializer(instance={})
+        return Response(serializer.data)
