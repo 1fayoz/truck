@@ -221,3 +221,22 @@ class ContactForm(BaseModel):
     linkedin = models.CharField(max_length=255)
     instagram = models.CharField(max_length=255)
     facebook = models.CharField(max_length=255)
+
+
+class Partners(BaseModel, NameTranslation):
+    logo = models.URLField()
+
+
+class FAQ(BaseModel):
+    question_uz = models.CharField(max_length=255)
+    question_en = models.CharField(max_length=255)
+    question_ru = models.CharField(max_length=255)
+
+    answer_uz = models.TextField()
+    answer_en = models.TextField()
+    answer_ru = models.TextField()
+
+    link = models.URLField()
+
+    def __str__(self):
+        return self.question_uz or " "

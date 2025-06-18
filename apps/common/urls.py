@@ -7,6 +7,7 @@ router = DefaultRouter()
 router.register(r'banner', views.BannerViewSet, basename='banner')
 router.register(r'club/offers', views.ClubOfferViewSet, basename='club-offer')
 router.register('exclusive-video', views.ExclusiveVideosListAPIView, basename='exclusive-video')
+router.register('partner', views.PartnersModelViewSet, basename='partner')
 
 urlpatterns = [
     path('club/stats/', views.ClubStatisticsAPIView.as_view()),

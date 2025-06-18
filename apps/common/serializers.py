@@ -158,3 +158,24 @@ class ExclusiveVideosSerializer(serializers.ModelSerializer):
         return models.VideoAndAudio.objects.create(**validated_data, type='exclusive')
 
 
+class PartnersSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Partners
+        fields = ('id', 'name', 'logo')
+
+    def get_name(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'name', request)
+
+
+class PartnersSerializerCreate(serializers.ModelSerializer):
+    name_uz = serializers.CharField(required=True)
+    name_en = serializers.CharField(required=True)
+    name_ru = serializers.CharField(required=True)
+
+    class Meta:
+        model = models.Partners
+        fields = ('id', 'name_uz', 'name_ru', 'name_en', 'logo')
+

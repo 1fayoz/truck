@@ -48,3 +48,12 @@ class ExclusiveVideosListAPIView(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'patch']
 
 
+class PartnersModelViewSet(viewsets.ModelViewSet):
+    queryset = models.Partners.objects.filter(is_active=True)
+    serializer_class = serializers.PartnersSerializer
+    http_method_names = ['get', 'post', 'patch']
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.PartnersSerializerCreate
+        return serializers.PartnersSerializer
