@@ -20,7 +20,8 @@ class ClubMember(BaseModel, NameTranslation, CompanyTranslation, BioTranslation,
     join_date = models.DateField()
     experience = models.IntegerField()
     type = models.CharField(max_length=255, choices=TypeChoice.choices, default=TypeChoice.MEMBER)
-    degree = models.CharField(max_length=255, choices=DegreeChoice.choices, default=DegreeChoice.PRESIDENT, null=True, blank=True)
+    degree = models.CharField(max_length=255, choices=DegreeChoice.choices, default=DegreeChoice.PRESIDENT, null=True,
+                              blank=True)
     industry = models.ForeignKey(Industry, on_delete=models.SET_NULL, null=True)
 
 
@@ -79,12 +80,17 @@ class VideoAndAudio(BaseModel, TitleTranslation, DescriptionTranslation):
     duration = models.CharField(max_length=255, null=True)
 
 
+class TravelCountry(BaseModel, NameTranslation):
+    pass
+
+
 class Travel(BaseModel, TitleTranslation, DescriptionTranslation, ShortDescriptionTranslation):
     class TravelStatus(models.TextChoices):
         PENDING = 'pending', "Pending"
         WAITING = 'waiting', "Waiting"
         BEEN = 'been', "Been"
 
+    country = models.ForeignKey(TravelCountry, on_delete=models.SET_NULL, null=True)
     view_count = models.BigIntegerField(default=0)
     status = models.CharField(max_length=20, choices=TravelStatus.choices, default=TravelStatus.PENDING)
 
