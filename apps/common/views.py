@@ -70,7 +70,7 @@ class FAQViewSet(viewsets.ModelViewSet):
 
 
 class ClubMemberListAPIView(generics.ListCreateAPIView):
-    queryset = models.ClubMember.objects.filter(is_active=True)
+    queryset = models.ClubMember.objects.filter(is_active=True, type='member')
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -78,3 +78,6 @@ class ClubMemberListAPIView(generics.ListCreateAPIView):
         return serializers.ClubMemberSerializer
 
 
+class ClubMemberDetailRetrieveAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.ClubMember.objects.filter(is_active=True, type='member')
+    serializer_class = serializers.ClubMemberDetailSerializer

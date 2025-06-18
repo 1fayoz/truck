@@ -253,6 +253,49 @@ class MetricSerializerCreate(serializers.ModelSerializer):
                   )
 
 
+class ClubMemberDetailSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+    company = serializers.SerializerMethodField()
+    position = serializers.SerializerMethodField()
+    social_links = SocialLinkSerializer(many=True, read_only=True)
+    metric_before = serializers.SerializerMethodField()
+    metric_after = serializers.SerializerMethodField()
+    bio = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.ClubMember
+        fields = ('id', 'full_name', 'experience', 'company', 'position',
+                  'image', 'social_links', 'metric_before', 'metric_after', 'bio', 'age', 'join_date')
+
+    def get_metric_before(self, obj):
+        metric = models.Metric.objects.filter(is_active=True, member=obj, type='before').last()
+        if metric:
+            return MetricSerializer(metric, context=self.context).data
+        return None
+
+    def get_metric_after(self, obj):
+        metric = models.Metric.objects.filter(is_active=True, member=obj, type='after').last()
+        if metric:
+            return MetricSerializer(metric, context=self.context).data
+        return None
+
+    def get_bio(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'bio', request)
+
+    def get_full_name(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'name', request)
+
+    def get_company(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'company', request)
+
+    def get_position(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'position', request)
+
+
 class ClubMemberSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
     employee_count = serializers.SerializerMethodField()
@@ -344,6 +387,21 @@ class ClubMemberSerializerCreate(serializers.ModelSerializer):
     def create(self, validated_data):
         social_links_data = validated_data.pop('social_links', [])
         metric_data = validated_data.pop('metric', [])
+
+        lang = utils.get_language(self.context['request'])
+
+        if len(metric_data) > 2:
+            raise serializers.ValidationError(
+                utils.ERROR_MESSAGES['too_many_metrics'].get(lang, utils.ERROR_MESSAGES['too_many_metrics']['uz'])
+            )
+
+        types_seen = set()
+        for metric in metric_data:
+            metric_type = metric.get('type')
+            if metric_type in types_seen:
+                msg_template = utils.ERROR_MESSAGES['duplicate_type'].get(lang, utils.ERROR_MESSAGES['duplicate_type']['uz'])
+                raise serializers.ValidationError(msg_template.format(type=metric_type))
+            types_seen.add(metric_type)
 
         club_member = models.ClubMember.objects.create(**validated_data)
 
