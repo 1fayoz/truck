@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.db.models import Avg, Count
 from rest_framework import serializers
 
@@ -110,9 +111,16 @@ class IndustryDistributionSerializer(serializers.Serializer):
 
     @staticmethod
     def get_distribution(request):
+        cache_key = "industry_distribution"
+        cached_data = cache.get(cache_key)
+
+        if cached_data is not None:
+            return cached_data
+
         total = models.ClubMember.objects.filter(is_active=True).count()
         if total == 0:
             return []
+
         stats = (
             models.ClubMember.objects
             .filter(is_active=True)
@@ -136,4 +144,6 @@ class IndustryDistributionSerializer(serializers.Serializer):
                 "industry": industry_name,
                 "percentage": percentage
             })
+
+        cache.set(cache_key, result, timeout=18000)
         return result
