@@ -147,3 +147,14 @@ class IndustryDistributionSerializer(serializers.Serializer):
 
         cache.set(cache_key, result, timeout=18000)
         return result
+
+
+class ExclusiveVideosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.VideoAndAudio
+        fields = ('id', 'url')
+
+    def create(self, validated_data):
+        return models.VideoAndAudio.objects.create(**validated_data, type='exclusive')
+
+

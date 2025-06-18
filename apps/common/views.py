@@ -40,3 +40,11 @@ class IndustryDistributionAPIView(views.APIView):
     def get(request):
         data = serializers.IndustryDistributionSerializer.get_distribution(request)
         return Response(data)
+
+
+class ExclusiveVideosListAPIView(viewsets.ModelViewSet):
+    queryset = models.VideoAndAudio.objects.filter(is_active=True, type='exclusive')
+    serializer_class = serializers.ExclusiveVideosSerializer
+    http_method_names = ['get', 'post', 'patch']
+
+
