@@ -8,6 +8,7 @@ router.register(r'banner', views.BannerViewSet, basename='banner')
 router.register(r'club/offers', views.ClubOfferViewSet, basename='club-offer')
 
 urlpatterns = [
-    path('club/stats/', views.ClubStatisticsAPIView.as_view())
+    path('club/stats/', views.ClubStatisticsAPIView.as_view()),
+    path('industry-distribution/', views.IndustryDistributionAPIView.as_view()),
 ]
 urlpatterns += router.urls

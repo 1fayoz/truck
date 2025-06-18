@@ -32,3 +32,11 @@ class ClubStatisticsAPIView(views.APIView):
     def get(request):
         serializer = serializers.ClubStatisticsSerializer(instance={})
         return Response(serializer.data)
+
+
+class IndustryDistributionAPIView(views.APIView):
+
+    @staticmethod
+    def get(request):
+        data = serializers.IndustryDistributionSerializer.get_distribution(request)
+        return Response(data)

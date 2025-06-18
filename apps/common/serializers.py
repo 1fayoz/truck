@@ -1,4 +1,4 @@
-from django.db.models import Avg
+from django.db.models import Avg, Count
 from rest_framework import serializers
 
 from apps.common import models, utils
@@ -102,3 +102,38 @@ class ClubStatisticsSerializer(serializers.Serializer):
     def get_experience_years(obj):
         avg_exp = models.ClubMember.objects.aggregate(avg=Avg('experience'))['avg']
         return round(avg_exp) if avg_exp else 0
+
+
+class IndustryDistributionSerializer(serializers.Serializer):
+    industry = serializers.CharField()
+    percentage = serializers.FloatField()
+
+    @staticmethod
+    def get_distribution(request):
+        total = models.ClubMember.objects.filter(is_active=True).count()
+        if total == 0:
+            return []
+        stats = (
+            models.ClubMember.objects
+            .filter(is_active=True)
+            .values('industry')
+            .annotate(count=Count('id'))
+        )
+
+        industry_map = {
+            industry.id: industry for industry in models.Industry.objects.all()
+        }
+
+        result = []
+        for item in stats:
+            industry_obj = industry_map.get(item['industry'])
+            if not industry_obj:
+                continue
+            industry_name = utils.get_translation(industry_obj, 'name', request)
+            percentage = round((item['count'] / total) * 100)
+
+            result.append({
+                "industry": industry_name,
+                "percentage": percentage
+            })
+        return result

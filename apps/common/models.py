@@ -20,7 +20,7 @@ class ClubMember(BaseModel, NameTranslation, CompanyTranslation, BioTranslation,
     join_date = models.DateField()
     experience = models.IntegerField()
     type = models.CharField(max_length=255, choices=TypeChoice.choices, default=TypeChoice.MEMBER)
-    degree = models.CharField(max_length=255, choices=DegreeChoice.choices, default=DegreeChoice.PRESIDENT)
+    degree = models.CharField(max_length=255, choices=DegreeChoice.choices, default=DegreeChoice.PRESIDENT, null=True, blank=True)
     industry = models.ForeignKey(Industry, on_delete=models.SET_NULL, null=True)
 
 
