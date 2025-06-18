@@ -57,3 +57,13 @@ class PartnersModelViewSet(viewsets.ModelViewSet):
         if self.request.method == 'POST':
             return serializers.PartnersSerializerCreate
         return serializers.PartnersSerializer
+
+
+class FAQViewSet(viewsets.ModelViewSet):
+    queryset = models.FAQ.objects.filter(is_active=True)
+    http_method_names = ['get', 'post', 'patch']
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.FAQSerializerCreate
+        return serializers.FAQSerializer

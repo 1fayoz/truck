@@ -179,3 +179,27 @@ class PartnersSerializerCreate(serializers.ModelSerializer):
         model = models.Partners
         fields = ('id', 'name_uz', 'name_ru', 'name_en', 'logo')
 
+
+class FAQSerializer(serializers.ModelSerializer):
+    answer = serializers.SerializerMethodField()
+    question = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.FAQ
+        fields = ('id', 'question', 'answer')
+
+    def get_answer(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'answer', request)
+
+    def get_question(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'question', request)
+
+
+class FAQSerializerCreate(serializers.ModelSerializer):
+    class Meta:
+        model = models.FAQ
+        fields = ('id', 'question_uz', 'question_en', 'question_ru',
+                  'answer_uz', 'answer_en', 'answer_ru', 'link'
+                  )
