@@ -79,7 +79,7 @@ class ClubMemberListAPIView(generics.ListCreateAPIView):
         return serializers.ClubMemberSerializer
 
 
-class ClubMemberDetailRetrieveAPIView(generics.RetrieveUpdateDestroyAPIView):
+class ClubMemberDetailRetrieveAPIView(generics.RetrieveAPIView):
     queryset = models.ClubMember.objects.filter(is_active=True, type='member')
     serializer_class = serializers.ClubMemberDetailSerializer
 
@@ -93,3 +93,26 @@ class TravelListAPIView(generics.ListCreateAPIView):
         if self.request.method == 'POST':
             return serializers.TravelSerializerCreate
         return serializers.TravelSerializer
+
+
+class MembersSpeechListCreateAPIView(generics.ListCreateAPIView):
+    queryset = models.VideoAndAudio.objects.filter(is_active=True, type='member_speech')
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.MembersSpeechSerializerCreate
+        return serializers.MembersSpeechSerializer
+
+
+class NewsListCreateAPIView(generics.ListCreateAPIView):
+    queryset = models.News.objects.filter(is_active=True)
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.NewsSerializerCreate
+        return serializers.NewsSerializer
+
+
+class NewsRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = models.News.objects.filter(is_active=True)
+    serializer_class = serializers.NewsSerializerDetail

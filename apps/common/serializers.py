@@ -289,7 +289,7 @@ class ClubMemberDetailSerializer(serializers.ModelSerializer):
 
     def get_company(self, obj):
         request = self.context['request']
-        return utils.get_translation(obj, 'company', request)
+        return utils.get_translation(obj.company, 'name', request) if obj.company else None
 
     def get_position(self, obj):
         request = self.context['request']
@@ -339,7 +339,7 @@ class ClubMemberSerializer(serializers.ModelSerializer):
 
     def get_company(self, obj):
         request = self.context['request']
-        return utils.get_translation(obj, 'company', request)
+        return utils.get_translation(obj.company, 'name', request) if obj.company else None
 
     def get_position(self, obj):
         request = self.context['request']
@@ -351,9 +351,10 @@ class ClubMemberSerializerCreate(serializers.ModelSerializer):
     name_en = serializers.CharField(required=True)
     name_ru = serializers.CharField(required=True)
 
-    company_uz = serializers.CharField(required=True)
-    company_en = serializers.CharField(required=True)
-    company_ru = serializers.CharField(required=True)
+    company = serializers.PrimaryKeyRelatedField(
+        queryset=models.Company.objects.filter(is_active=True),
+        required=True
+    )
 
     position_uz = serializers.CharField(required=True)
     position_en = serializers.CharField(required=True)
@@ -378,7 +379,7 @@ class ClubMemberSerializerCreate(serializers.ModelSerializer):
 
     class Meta:
         model = models.ClubMember
-        fields = ('name_uz', 'name_en', 'name_ru', 'company_uz', 'company_en', 'company_ru',
+        fields = ('name_uz', 'name_en', 'name_ru', 'company',
                   'position_uz', 'position_en', 'position_ru', 'bio_ru', 'bio_en', 'bio_uz',
                   'age', 'image', 'join_date', 'experience', 'type', 'degree', 'industry',
                   'social_links', 'metric'
@@ -444,14 +445,14 @@ class TravelSerializer(serializers.ModelSerializer):
         return utils.get_translation(obj, 'short_description', request)
 
 
-class TravelImageSerializer(serializers.ModelSerializer):
+class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Images
-        fields = ('image', 'is_main')
+        fields = ('id','image', 'is_main')
 
 
 class TravelSerializerCreate(serializers.ModelSerializer):
-    images = TravelImageSerializer(many=True, write_only=True)
+    images = ImageSerializer(many=True, write_only=True)
 
     class Meta:
         model = models.Travel
@@ -472,3 +473,147 @@ class TravelSerializerCreate(serializers.ModelSerializer):
             models.Images.objects.create(travel=travel, type='travel', **image_data)
 
         return travel
+
+
+class MembersSpeechSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+    position = serializers.SerializerMethodField()
+    company = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.VideoAndAudio
+        fields = (
+            'id', 'url', 'full_name', 'position',
+            'company',
+        )
+
+    def get_full_name(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj.members, 'name', request) if obj.members else None
+
+    def get_position(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj.members, 'position', request) if obj.members else None
+
+    def get_company(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj.members.company, 'name', request) if obj.members.company else None
+
+
+class MembersSpeechSerializerCreate(serializers.ModelSerializer):
+    members = serializers.PrimaryKeyRelatedField(
+        queryset=models.ClubMember.objects.filter(is_active=True),
+        required=True,
+    )
+
+    class Meta:
+        model = models.VideoAndAudio
+        fields = ('id', 'url', 'members')
+
+    def create(self, validated_data):
+        return models.VideoAndAudio.objects.create(type='member_speech', **validated_data)
+
+
+class TagsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Tag
+        fields = ('id', 'name')
+
+
+class NewsSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
+    short_description = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
+    tags = TagsSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = models.News
+        fields = ('id', 'title', 'short_description', 'image', 'view_count', 'tags', 'created_at')
+
+    def get_title(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj, 'title', request) if obj else None
+
+    def get_short_description(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj, 'short_description', request) if obj else None
+
+    @staticmethod
+    def get_image(obj):
+        main_image = obj.images.filter(is_main=True, type='new', is_active=True).order_by('-created_at').first()
+        return main_image.image if main_image else None
+
+
+class NewsSerializerCreate(serializers.ModelSerializer):
+    title_uz = serializers.CharField(required=True)
+    title_en = serializers.CharField(required=True)
+    title_ru = serializers.CharField(required=True)
+
+    description_uz = serializers.CharField(required=True)
+    description_ru = serializers.CharField(required=True)
+    description_en = serializers.CharField(required=True)
+
+    short_description_uz = serializers.CharField(required=True)
+    short_description_ru = serializers.CharField(required=True)
+    short_description_en = serializers.CharField(required=True)
+
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=models.Tag.objects.filter(is_active=True), required=True
+    )
+
+    images = ImageSerializer(many=True, required=True)
+
+    class Meta:
+        model = models.News
+        fields = (
+            'id', 'title_ru', 'title_en', 'title_uz',
+            'description_ru', 'description_en', 'description_uz',
+            'short_description_ru', 'short_description_en', 'short_description_uz',
+            'tags', 'images'
+        )
+
+    def create(self, validated_data):
+        tags = validated_data.pop('tags', [])
+        images_data = validated_data.pop('images', [])
+
+        news = models.News.objects.create(**validated_data)
+        news.tags.set(tags)
+
+        images = [
+            models.Images(
+                news=news,
+                type='new',
+                **image_data
+            )
+            for image_data in images_data
+        ]
+        if images:
+            models.Images.objects.bulk_create(images)
+
+        return news
+
+
+class NewsSerializerDetail(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.News
+        fields = ('id', 'title', 'description', 'images', 'view_count', 'created_at')
+
+    @staticmethod
+    def get_images(obj):
+        queryset = obj.images.filter(type='new', is_active=True).order_by('-created_at')
+        return ImageSerializer(queryset, many=True).data
+
+    def get_title(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj, 'title', request) if obj else None
+
+    def get_description(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj, 'description', request) if obj else None
+
+

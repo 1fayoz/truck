@@ -16,5 +16,8 @@ urlpatterns = [
     path('club/members/', views.ClubMemberListAPIView.as_view()),
     path('club/members/<int:pk>/', views.ClubMemberDetailRetrieveAPIView.as_view()),
     path('travel/', views.TravelListAPIView.as_view()),
+    path('member-speech/', views.MembersSpeechListCreateAPIView.as_view()),
+    path('news/', views.NewsListCreateAPIView.as_view()),
+    path('news/<int:pk>', views.NewsRetrieveAPIView.as_view()),
 ]
 urlpatterns += router.urls

@@ -5,7 +5,11 @@ class Industry(BaseModel, NameTranslation):
     icon = models.CharField(max_length=255)
 
 
-class ClubMember(BaseModel, NameTranslation, CompanyTranslation, BioTranslation, PositionTranslation):
+class Company(BaseModel, NameTranslation):
+    pass
+
+
+class ClubMember(BaseModel, NameTranslation, BioTranslation, PositionTranslation):
     class DegreeChoice(models.TextChoices):
         PRESIDENT = 'president', "President"
         DIRECTOR = 'director', "Director"
@@ -15,6 +19,7 @@ class ClubMember(BaseModel, NameTranslation, CompanyTranslation, BioTranslation,
         MEMBER = 'member', "Member"
         EXPERT = 'expert', "Expert"
 
+    company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True)
     age = models.IntegerField()
     image = models.URLField(null=True, blank=True)
     join_date = models.DateField()
@@ -31,7 +36,7 @@ class Autobiography(BaseModel, DescriptionTranslation):
 
 
 class SocialLink(BaseModel, NameTranslation):
-    url = models.CharField(max_length=255)
+    url = models.URLField()
     member = models.ForeignKey(ClubMember, on_delete=models.CASCADE, related_name='social_links')
 
 
@@ -75,7 +80,8 @@ class VideoAndAudio(BaseModel, TitleTranslation, DescriptionTranslation):
 
     url = models.CharField(max_length=255)
     type = models.CharField(max_length=255, choices=ContentType.choices, default=ContentType.VIDEO_PODCAST)
-    speakers = models.CharField(max_length=255, null=True)
+    speakers = models.ForeignKey(Speaker, on_delete=models.SET_NULL, null=True)
+    members = models.ForeignKey(ClubMember, on_delete=models.SET_NULL, null=True)
     view_count = models.BigIntegerField(null=True)
     duration = models.CharField(max_length=255, null=True)
 
@@ -95,12 +101,15 @@ class Travel(BaseModel, DescriptionTranslation, ShortDescriptionTranslation):
     status = models.CharField(max_length=20, choices=TravelStatus.choices, default=TravelStatus.PENDING)
 
 
-class Tag(BaseModel, NameTranslation):
-    pass
+class Tag(BaseModel):
+    name = models.CharField(max_length=255, null=True)
+
+    def __str__(self):
+        return str(self.name)
 
 
 class News(BaseModel, TitleTranslation, DescriptionTranslation, ShortDescriptionTranslation):
-    view_count = models.BigIntegerField()
+    view_count = models.BigIntegerField(default=0)
     tags = models.ManyToManyField(Tag)
 
 
