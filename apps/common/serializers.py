@@ -448,7 +448,7 @@ class TravelSerializer(serializers.ModelSerializer):
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Images
-        fields = ('id','image', 'is_main')
+        fields = ('id', 'image', 'is_main')
 
 
 class TravelSerializerCreate(serializers.ModelSerializer):
@@ -515,7 +515,6 @@ class MembersSpeechSerializerCreate(serializers.ModelSerializer):
 
 
 class TagsSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.Tag
         fields = ('id', 'name')
@@ -617,3 +616,136 @@ class NewsSerializerDetail(serializers.ModelSerializer):
         return utils.get_translation(obj, 'description', request) if obj else None
 
 
+class SpeakerSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Speaker
+        fields = ('id', 'name', 'image')
+
+    def get_name(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj, 'name', request) if obj else None
+
+
+class BusinessCourseSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
+    speaker = SpeakerSerializer()
+
+    class Meta:
+        model = models.BusinessCourse
+        fields = ('id', 'title', 'view_count', 'image', 'speaker')
+
+    def get_title(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj, 'title', request) if obj else None
+
+
+class CourseInfoSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.CourseInfo
+        fields = ('id', 'title', 'description', 'module_number', 'icon')
+
+    def get_title(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj, 'title', request) if obj else None
+
+    def get_description(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj, 'description', request) if obj else None
+
+
+class BusinessCourseSerializerDetail(serializers.ModelSerializer):
+    description = serializers.SerializerMethodField()
+    banner = BannerSerializer()
+    course_format = serializers.SerializerMethodField()
+    course_modules = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.BusinessCourse
+        fields = (
+            'id', 'description', 'banner', 'course_format', 'course_modules'
+        )
+
+    @staticmethod
+    def get_course_modules(obj):
+        queryset = obj.course_info.filter(type='module', is_active=True).order_by('module_number')
+        return CourseInfoSerializer(queryset, many=True).data
+
+    @staticmethod
+    def get_course_format(obj):
+        queryset = obj.course_info.filter(type='format', is_active=True)
+        return CourseInfoSerializer(queryset, many=True).data
+
+    def get_description(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj, 'description', request) if obj else None
+
+
+class BusinessCourseSerializerCreate(serializers.ModelSerializer):
+    title_uz = serializers.CharField(required=True)
+    title_en = serializers.CharField(required=True)
+    title_ru = serializers.CharField(required=True)
+
+    description_uz = serializers.CharField(required=True)
+    description_ru = serializers.CharField(required=True)
+    description_en = serializers.CharField(required=True)
+
+    banner = BannerSerializer(required=True)
+
+    class Meta:
+        model = models.BusinessCourse
+        fields = ('id', 'title_uz', 'title_en', 'title_ru',
+                  'description_uz', 'description_ru', 'description_en',
+                  'banner'
+                  )
+
+
+class AutobiographySerializer(serializers.ModelSerializer):
+    description = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Autobiography
+        fields = ('id', 'year', 'description')
+
+    def get_description(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj, 'description', request) if obj else None
+
+
+class ClubPresidentDetailSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+    company = serializers.SerializerMethodField()
+    position = serializers.SerializerMethodField()
+    social_links = SocialLinkSerializer(many=True, read_only=True)
+    bio = serializers.SerializerMethodField()
+    autobiographies = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.ClubMember
+        fields = ('id', 'full_name', 'experience', 'company', 'position',
+                  'image', 'social_links', 'bio', 'age', 'autobiographies')
+
+    @staticmethod
+    def get_autobiographies(obj):
+        queryset = obj.autobiographies.filter(is_active=True).order_by('order')
+        return AutobiographySerializer(queryset, many=True).data
+
+    def get_bio(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'bio', request)
+
+    def get_full_name(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'name', request)
+
+    def get_company(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj.company, 'name', request) if obj.company else None
+
+    def get_position(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'position', request)

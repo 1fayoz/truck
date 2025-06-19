@@ -32,7 +32,8 @@ class ClubMember(BaseModel, NameTranslation, BioTranslation, PositionTranslation
 
 class Autobiography(BaseModel, DescriptionTranslation):
     year = models.CharField(max_length=255)
-    member = models.ForeignKey(ClubMember, on_delete=models.CASCADE)
+    member = models.ForeignKey(ClubMember, on_delete=models.CASCADE, related_name='autobiographies')
+    order = models.IntegerField(null=True, blank=True)
 
 
 class SocialLink(BaseModel, NameTranslation):
@@ -142,7 +143,7 @@ class CourseInfo(BaseModel, TitleTranslation, DescriptionTranslation):
         FORMAT = 'format', "Format"
 
     module_number = models.BigIntegerField(null=True, blank=True)
-    business_course = models.ForeignKey(BusinessCourse, on_delete=models.CASCADE)
+    business_course = models.ForeignKey(BusinessCourse, on_delete=models.CASCADE, related_name='course_info')
     type = models.CharField(max_length=255, choices=ModuleType.choices, default=ModuleType.MODULE)
     icon = models.CharField(max_length=255, null=True, blank=True)
 

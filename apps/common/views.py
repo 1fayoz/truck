@@ -71,7 +71,7 @@ class FAQViewSet(viewsets.ModelViewSet):
 
 
 class ClubMemberListAPIView(generics.ListCreateAPIView):
-    queryset = models.ClubMember.objects.filter(is_active=True, type='member')
+    queryset = models.ClubMember.objects.filter(is_active=True, type__in=['member', 'expert'])
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -116,3 +116,22 @@ class NewsListCreateAPIView(generics.ListCreateAPIView):
 class NewsRetrieveAPIView(generics.RetrieveAPIView):
     queryset = models.News.objects.filter(is_active=True)
     serializer_class = serializers.NewsSerializerDetail
+
+
+class BusinessCourseListCreateAPIView(generics.ListCreateAPIView):
+    queryset = models.BusinessCourse.objects.filter(is_active=True)
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.BusinessCourseSerializer
+        return serializers.BusinessCourseSerializer
+
+
+class BusinessCourseRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = models.BusinessCourse.objects.filter(is_active=True)
+    serializer_class = serializers.BusinessCourseSerializerDetail
+
+
+class ClubPresidentRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = models.ClubMember.objects.filter(is_active=True, degree='president')
+    serializer_class = serializers.ClubPresidentDetailSerializer
