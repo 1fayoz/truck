@@ -5,7 +5,7 @@ services:
     volumes:
       - postgres_data2:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5434:5434"
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - POSTGRES_DB=${DB_NAME}
