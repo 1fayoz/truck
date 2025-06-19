@@ -21,6 +21,8 @@ urlpatterns = [
     path('news/<int:pk>/', views.NewsRetrieveAPIView.as_view()),
     path('business-course/', views.BusinessCourseListCreateAPIView.as_view()),
     path('business-course/<int:pk>/', views.BusinessCourseRetrieveAPIView.as_view()),
-    path('club/president/<int:pk>/', views.ClubPresidentRetrieveAPIView.as_view())
+    path('club/president/<int:pk>/', views.ClubPresidentRetrieveAPIView.as_view()),
+    path('events/', views.EventListAPIView.as_view()),
+    path('events/<int:pk>/', views.EventRetrieveAPIView.as_view())
 ]
 urlpatterns += router.urls

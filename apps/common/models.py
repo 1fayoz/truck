@@ -157,14 +157,22 @@ class Events(BaseModel, TitleTranslation, DescriptionTranslation, LocationTransl
         PENDING = 'pending', "Pending"
         COMPLETED = 'completed', "Completed"
 
+    status = models.CharField(max_length=20, choices=EventType.choices, default=EventType.PENDING)
+    image = models.URLField(null=True)
     banner = models.ForeignKey(Banner, on_delete=models.SET_NULL, null=True)
     date = models.DateTimeField()
     duration = models.CharField(max_length=255)
 
 
+class EventSpeaker(models.Model):
+    events = models.ForeignKey(Events, on_delete=models.CASCADE, related_name='event_speakers')
+    speaker = models.ForeignKey(Speaker, on_delete=models.CASCADE)
+
+
 class EventAgenda(BaseModel, TitleTranslation, DescriptionTranslation):
     time = models.CharField(max_length=255)
     order = models.IntegerField()
+    event = models.ForeignKey(Events, on_delete=models.CASCADE, null=True, related_name='agendas')
 
 
 class Gallery(BaseModel, TitleTranslation, DescriptionTranslation):

@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import (
     Industry, ClubMember, Autobiography, SocialLink, Metric, ClubOffer, Banner, Speaker, VideoAndAudio,
     Travel, Tag, News, Images, BusinessCourse, CourseInfo, NationalValue, Events, EventAgenda,
-    Gallery, GenericChoice, ContactForm, TravelCountry, Company
+    Gallery, GenericChoice, ContactForm, TravelCountry, Company, EventSpeaker
 )
 
 # 🔹 Helper for image/icon preview
@@ -113,6 +113,11 @@ class TravelAdmin(admin.ModelAdmin):
 @admin.register(TravelCountry)
 class TravelCountryAdmin(admin.ModelAdmin):
     list_display = ['name_uz']
+
+
+@admin.register(EventSpeaker)
+class TravelCountryAdmin(admin.ModelAdmin):
+    list_display = ['speaker']
 
 
 @admin.register(Company)

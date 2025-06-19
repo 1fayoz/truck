@@ -135,3 +135,20 @@ class BusinessCourseRetrieveAPIView(generics.RetrieveAPIView):
 class ClubPresidentRetrieveAPIView(generics.RetrieveAPIView):
     queryset = models.ClubMember.objects.filter(is_active=True, degree='president')
     serializer_class = serializers.ClubPresidentDetailSerializer
+
+
+class EventListAPIView(generics.ListCreateAPIView):
+    queryset = models.Events.objects.filter(is_active=True)
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['status', 'date']
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.EventSerializer
+        return serializers.EventSerializer
+
+
+class EventRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = models.Events.objects.filter(is_active=True)
+    serializer_class = serializers.EventDetailSerializer
+

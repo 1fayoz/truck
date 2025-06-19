@@ -1,6 +1,8 @@
 from django.core.cache import cache
 from django.db.models import Avg, Count
 from rest_framework import serializers
+from datetime import datetime
+from django.utils.timezone import now
 
 from apps.common import models, utils
 
@@ -749,3 +751,97 @@ class ClubPresidentDetailSerializer(serializers.ModelSerializer):
     def get_position(self, obj):
         request = self.context['request']
         return utils.get_translation(obj, 'position', request)
+
+
+class EventSpeakersSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.EventSpeaker
+        fields = ('id', 'name', 'image')
+
+    def get_name(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj.speaker, 'name', request)
+
+    @staticmethod
+    def get_image(obj):
+        return obj.speaker.image
+
+
+class EventSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
+    location = serializers.SerializerMethodField()
+    event_speakers = EventSpeakersSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = models.Events
+        fields = ('id', 'image', 'title', 'status',
+                  'location', 'date', 'duration', 'event_speakers'
+                  )
+
+    def get_title(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'title', request)
+
+    def get_location(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'location', request)
+
+
+class EventAgendaSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.EventAgenda
+        fields = ('id', 'title', 'description', 'time')
+
+    def get_title(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'title', request)
+
+    def get_description(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'description', request)
+
+
+class EventDetailSerializer(serializers.ModelSerializer):
+    description = serializers.SerializerMethodField()
+    location = serializers.SerializerMethodField()
+    banner = BannerSerializer(read_only=True)
+    title = serializers.SerializerMethodField()
+    agendas = serializers.SerializerMethodField()
+    remaining_seconds = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Events
+        fields = ('id', 'title', 'description', 'location',
+                  'date', 'duration', 'banner', 'agendas', 'remaining_seconds'
+                  )
+
+    def get_agendas(self, obj):
+        queryset = obj.agendas.filter(is_active=True).order_by('order')
+        return EventAgendaSerializer(queryset, many=True, context=self.context).data
+
+    def get_title(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'title', request)
+
+    def get_description(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'description', request) if obj else None
+
+    def get_location(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'location', request)
+
+    @staticmethod
+    def get_remaining_seconds(obj):
+        if obj.date:
+            now_time = now()
+            delta = obj.date - now_time
+            remaining_seconds = int(delta.total_seconds())
+            return max(0, remaining_seconds)
+        return None
