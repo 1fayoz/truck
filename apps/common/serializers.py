@@ -442,3 +442,33 @@ class TravelSerializer(serializers.ModelSerializer):
     def get_short_description(self, obj):
         request = self.context['request']
         return utils.get_translation(obj, 'short_description', request)
+
+
+class TravelImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Images
+        fields = ('image', 'is_main')
+
+
+class TravelSerializerCreate(serializers.ModelSerializer):
+    images = TravelImageSerializer(many=True, write_only=True)
+
+    class Meta:
+        model = models.Travel
+        fields = (
+            'id',
+            'country',
+            'description_uz', 'description_ru', 'description_en',
+            'short_description_uz', 'short_description_ru', 'short_description_en',
+            'status',
+            'images'
+        )
+
+    def create(self, validated_data):
+        images_data = validated_data.pop('images', [])
+        travel = models.Travel.objects.create(**validated_data)
+
+        for image_data in images_data:
+            models.Images.objects.create(travel=travel, type='travel', **image_data)
+
+        return travel

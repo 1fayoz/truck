@@ -91,5 +91,5 @@ class TravelListAPIView(generics.ListCreateAPIView):
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
-            return serializers.TravelSerializer
+            return serializers.TravelSerializerCreate
         return serializers.TravelSerializer
