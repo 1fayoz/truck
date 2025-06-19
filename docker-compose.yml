@@ -1,41 +1,59 @@
-version: '3'
-
-volumes:
-  postgres_data: {}
-  static_data: {}
-  media_data: {}
+version: '3.7'
 
 services:
-  web:
-    container_name: ${PROJECT_NAME}_web
-    depends_on:
-      - db
-    build: .
-    volumes:
-      - .:/app/
-      - static_data:/app/static/
-      - media_data:/app/media/
-    env_file: .env
-    command: python manage.py runserver
-    ports:
-      - ${PORT}:${PORT}
-    restart: always
-
   db:
-    image: postgres:13.4-buster
-    container_name: ${PROJECT_NAME}_db
+    image: postgres
+    container_name: "million_db"
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    env_file: .env
+      - postgres_data2:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_HOST=${DB_HOST}
-      - POSTGRES_PORT=${DB_PORT}
+    env_file:
+      - .env
+    networks:
+      - app_network
+
+  web:
+    depends_on:
+      - db2
+      - redis
+    build:
+      context: .
+    image: million-image
+    volumes:
+      - .:/app
+      - ./static:/app/static/
+      - ./media:/app/media/
+    env_file:
+      - .env
+    container_name: million-container
+    command: gunicorn --workers=3 --bind 0.0.0.0:8011 core.wsgi:application
+    ports:
+      - "8011:8011"
+    expose:
+      - "8011"
     restart: always
+    networks:
+      - app_network
 
   redis:
-    container_name: ${PROJECT_NAME}_redis
-    image: redis:5.0
-    restart: always
+    image: redis
+    container_name: "main-redis-container"
+    ports:
+      - "6379:6379"
+    networks:
+      - app_network
+
+volumes:
+  postgres_data2:
+  static:
+  media:
+
+networks:
+  app_network:
+    driver: bridge
