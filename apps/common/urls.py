@@ -13,16 +13,26 @@ router.register('faq', views.FAQViewSet, basename='faq')
 urlpatterns = [
     path('club/stats/', views.ClubStatisticsAPIView.as_view()),
     path('industry-distribution/', views.IndustryDistributionAPIView.as_view()),
+
     path('club/members/', views.ClubMemberListAPIView.as_view()),
     path('club/members/<int:pk>/', views.ClubMemberDetailRetrieveAPIView.as_view()),
+
     path('travel/', views.TravelListAPIView.as_view()),
     path('member-speech/', views.MembersSpeechListCreateAPIView.as_view()),
+
     path('news/', views.NewsListCreateAPIView.as_view()),
     path('news/<int:pk>/', views.NewsRetrieveAPIView.as_view()),
+
     path('business-course/', views.BusinessCourseListCreateAPIView.as_view()),
     path('business-course/<int:pk>/', views.BusinessCourseRetrieveAPIView.as_view()),
+
     path('club/president/<int:pk>/', views.ClubPresidentRetrieveAPIView.as_view()),
+
     path('events/', views.EventListAPIView.as_view()),
-    path('events/<int:pk>/', views.EventRetrieveAPIView.as_view())
+    path('events/<int:pk>/', views.EventRetrieveAPIView.as_view()),
+
+    path('podcasts/', views.PodcastListCreateAPIView.as_view()),
+    path('podcasts/<int:pk>/', views.PodcastRetrieveAPIView.as_view()),
+
 ]
 urlpatterns += router.urls

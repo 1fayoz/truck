@@ -152,3 +152,19 @@ class EventRetrieveAPIView(generics.RetrieveAPIView):
     queryset = models.Events.objects.filter(is_active=True)
     serializer_class = serializers.EventDetailSerializer
 
+
+class PodcastListCreateAPIView(generics.ListCreateAPIView):
+    queryset = models.VideoAndAudio.objects.filter(is_active=True, type__in=['video_podcast', 'audio_podcast'])
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['type']
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.PodcastSerializer
+        return serializers.PodcastSerializer
+
+
+class PodcastRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = models.VideoAndAudio.objects.filter(is_active=True, type__in=['video_podcast', 'audio_podcast'])
+    serializer_class = serializers.PodcastDetailSerializer
+

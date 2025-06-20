@@ -845,3 +845,54 @@ class EventDetailSerializer(serializers.ModelSerializer):
             remaining_seconds = int(delta.total_seconds())
             return max(0, remaining_seconds)
         return None
+
+
+class PodcastSpeakerSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.PodcastSpeaker
+        fields = ('id', 'name', 'image')
+
+    def get_name(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj.speaker, 'name', request)
+
+    @staticmethod
+    def get_image(obj):
+        return obj.speaker.image if obj.speaker else None
+
+
+class PodcastSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
+    podcasts_speaker = PodcastSpeakerSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = models.VideoAndAudio
+        fields = ('id', 'title', 'url', 'duration', 'view_count', 'podcasts_speaker', 'type')
+
+    def get_title(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'title', request)
+
+
+class PodcastDetailSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
+    podcasts_speaker = PodcastSpeakerSerializer(many=True, read_only=True)
+    description = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.VideoAndAudio
+        fields = ('id', 'title', 'url', 'duration', 'view_count',
+                  'podcasts_speaker', 'type', 'extra_image', 'description',
+                  'created_at'
+                  )
+
+    def get_title(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'title', request)
+
+    def get_description(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'description', request)

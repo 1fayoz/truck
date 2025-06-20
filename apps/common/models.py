@@ -79,12 +79,17 @@ class VideoAndAudio(BaseModel, TitleTranslation, DescriptionTranslation):
         AUDIO_PODCAST = 'audio_podcast', "Audio Podcast"
         MEMBER_SPEECH = 'member_speech', "Member Speech"
 
-    url = models.CharField(max_length=255)
+    url = models.URLField()
+    extra_image = models.URLField(null=True, blank=True)
     type = models.CharField(max_length=255, choices=ContentType.choices, default=ContentType.VIDEO_PODCAST)
-    speakers = models.ForeignKey(Speaker, on_delete=models.SET_NULL, null=True)
-    members = models.ForeignKey(ClubMember, on_delete=models.SET_NULL, null=True)
+    members = models.ForeignKey(ClubMember, on_delete=models.SET_NULL, null=True, blank=True)
     view_count = models.BigIntegerField(null=True)
     duration = models.CharField(max_length=255, null=True)
+
+
+class PodcastSpeaker(models.Model):
+    podcast = models.ForeignKey(VideoAndAudio, on_delete=models.CASCADE, related_name='podcasts_speaker')
+    speaker = models.ForeignKey(Speaker, on_delete=models.CASCADE, related_name='podcasts_speaker')
 
 
 class TravelCountry(BaseModel, NameTranslation):
