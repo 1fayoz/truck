@@ -25,3 +25,11 @@ ERROR_MESSAGES = {
         'en': "The '{type}' type was duplicated.",
     }
 }
+
+
+def upload_to(instance, filename):
+    ext = filename.split('.')[-1]
+    filename = f"{uuid4()}.{ext}"
+    if instance.type == Uploader.TypeChoices.IMAGE:
+        return os.path.join('uploads/images/', filename)
+    return os.path.join('uploads/videos/', filename)

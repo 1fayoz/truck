@@ -948,3 +948,45 @@ class NationalValueSerializer(serializers.ModelSerializer):
     def get_description(self, obj):
         request = self.context['request']
         return utils.get_translation(obj, 'description', request)
+
+
+class UploaderSerializer(serializers.ModelSerializer):
+    file_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Uploader
+        fields = ['id', 'type', 'file', 'file_url']
+        extra_kwargs = {
+            'file': {'write_only': True}
+        }
+
+    @staticmethod
+    def validate_type(value):
+        if value not in models.Uploader.TypeChoices.values:
+            raise serializers.ValidationError("Type must be 'image' or 'video'.")
+        return value
+
+    def validate_file(self, file):
+        allowed_image_ext = ['jpg', 'jpeg', 'png']
+        allowed_video_ext = ['mp4', 'mov']
+        ext = file.name.split('.')[-1].lower()
+
+        _type = self.initial_data.get('type')
+        if _type == models.Uploader.TypeChoices.IMAGE and ext not in allowed_image_ext:
+            raise serializers.ValidationError("Only JPG, JPEG, PNG files are allowed for images.")
+        elif _type == models.Uploader.TypeChoices.VIDEO and ext not in allowed_video_ext:
+            raise serializers.ValidationError("Only MP4, MOV files are allowed for videos.")
+
+        return file
+
+    def create(self, validated_data):
+        file = validated_data.get('file')
+        ext = file.name.split('.')[-1]
+        file.name = f"{uuid4()}.{ext}"
+        return super().create(validated_data)
+
+    def get_file_url(self, obj):
+        request = self.context.get('request')
+        if obj.file and request:
+            return request.build_absolute_uri(obj.file.url)
+        return None

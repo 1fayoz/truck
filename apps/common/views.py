@@ -192,3 +192,15 @@ class NationalValueListCreateAPIView(generics.ListCreateAPIView):
         if self.request.method == 'POST':
             return serializers.NationalValueSerializer
         return serializers.NationalValueSerializer
+
+
+class FileUploadView(views.APIView):
+
+    @staticmethod
+    def post(request, *args, **kwargs):
+        serializer = serializers.UploaderSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            instance = serializer.save()
+            return Response(serializers.UploaderSerializer(instance, context={'request': request}).data,
+                            status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -263,3 +263,17 @@ class FAQ(BaseModel):
 
     def __str__(self):
         return self.question_uz or " "
+
+
+class Uploader(models.Model):
+    from .utils import upload_to
+
+    class TypeChoices(models.TextChoices):
+        IMAGE = 'image', "Image"
+        VIDEO = 'video', "Video"
+
+    type = models.CharField(max_length=10, choices=TypeChoices.choices)
+    file = models.FileField(upload_to=upload_to)
+
+    def __str__(self):
+        return f"{self.file.name}"
