@@ -78,12 +78,24 @@ class ClubOfferSerializerCreate(serializers.ModelSerializer):
         )
 
 
+class HomeStatIconsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.HomeStatIcons
+        fields = '__all__'
+
+
 class ClubStatisticsSerializer(serializers.Serializer):
     annual_revenue = serializers.SerializerMethodField()
     club_members = serializers.SerializerMethodField()
     business_fields = serializers.SerializerMethodField()
     export_scope = serializers.SerializerMethodField()
     experience_years = serializers.SerializerMethodField()
+    icon = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_icon(obj):
+        icon = models.HomeStatIcons.objects.last()
+        return HomeStatIconsSerializer(icon).data if icon else None
 
     @staticmethod
     def get_annual_revenue(obj):
@@ -1047,7 +1059,8 @@ class ContactFormSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(utils.messages[lang]['attendee_required'])
 
         elif contact_type in ['member', 'expert']:
-            required_fields = ['full_name', 'phone', 'company', 'annual_revenue', 'business_type', 'business_experience', 'project_count', 'employee_count']
+            required_fields = ['full_name', 'phone', 'company', 'annual_revenue', 'business_type',
+                               'business_experience', 'project_count', 'employee_count']
             for field in required_fields:
                 if not data.get(field):
                     raise serializers.ValidationError(utils.messages[lang]['member_expert_required'])

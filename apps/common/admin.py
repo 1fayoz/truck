@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import (
     Industry, ClubMember, Autobiography, SocialLink, Metric, ClubOffer, Banner, Speaker, VideoAndAudio,
     Travel, Tag, News, Images, BusinessCourse, CourseInfo, NationalValue, Events, EventAgenda,
-    Gallery, GenericChoice, ContactForm, TravelCountry, Company, EventSpeaker, PodcastSpeaker
+    Gallery, GenericChoice, ContactForm, TravelCountry, Company, EventSpeaker, PodcastSpeaker, HomeStatIcons
 )
 
 # 🔹 Helper for image/icon preview
@@ -195,6 +195,11 @@ class GenericChoiceAdmin(admin.ModelAdmin):
     list_display = ['id', 'name_en', 'type']
     list_filter = ['type']
     search_fields = ['name_en']
+
+
+@admin.register(HomeStatIcons)
+class HomeStatIconsAdmin(admin.ModelAdmin):
+    list_display = ['id', 'annual_revenue']
 
 
 @admin.register(ContactForm)

@@ -282,3 +282,12 @@ class Uploader(BaseModel):
 
     def __str__(self):
         return f"{self.file.name}"
+
+
+class HomeStatIcons(models.Model):
+    annual_revenue = models.URLField()
+    club_members = models.URLField()
+    business_fields = models.URLField()
+    export_scope = models.URLField()
+    experience_years = models.URLField()
+
