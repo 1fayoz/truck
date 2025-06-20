@@ -168,3 +168,27 @@ class PodcastRetrieveAPIView(generics.RetrieveAPIView):
     queryset = models.VideoAndAudio.objects.filter(is_active=True, type__in=['video_podcast', 'audio_podcast'])
     serializer_class = serializers.PodcastDetailSerializer
 
+
+class GalleryListCreateAPIView(generics.ListCreateAPIView):
+    queryset = models.Gallery.objects.filter(is_active=True)
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['type']
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.GallerySerializer
+        return serializers.GallerySerializer
+
+
+class GalleryRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = models.Gallery.objects.filter(is_active=True, type='picture')
+    serializer_class = serializers.GalleryDetailSerializer
+
+
+class NationalValueListCreateAPIView(generics.ListCreateAPIView):
+    queryset = models.NationalValue.objects.filter(is_active=True)
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.NationalValueSerializer
+        return serializers.NationalValueSerializer

@@ -34,5 +34,10 @@ urlpatterns = [
     path('podcasts/', views.PodcastListCreateAPIView.as_view()),
     path('podcasts/<int:pk>/', views.PodcastRetrieveAPIView.as_view()),
 
+    path('gallery/', views.GalleryListCreateAPIView.as_view()),
+    path('gallery/<int:pk>/', views.GalleryRetrieveAPIView.as_view()),
+
+    path('national-values/', views.NationalValueListCreateAPIView.as_view()),
+
 ]
 urlpatterns += router.urls

@@ -128,9 +128,9 @@ class Images(BaseModel):
     type = models.CharField(max_length=255, choices=ImageType.choices, default=ImageType.NEW)
     image = models.URLField()
 
-    travel = models.ForeignKey(Travel, on_delete=models.SET_NULL, null=True, related_name='images')
-    news = models.ForeignKey(News, on_delete=models.SET_NULL, null=True, related_name='images')
-    gallery = models.ForeignKey("Gallery", on_delete=models.SET_NULL, null=True, related_name='images')
+    travel = models.ForeignKey(Travel, on_delete=models.SET_NULL, null=True, blank=True, related_name='images')
+    news = models.ForeignKey(News, on_delete=models.SET_NULL, null=True, blank=True, related_name='images')
+    gallery = models.ForeignKey("Gallery", on_delete=models.SET_NULL, null=True, blank=True, related_name='images')
 
     is_main = models.BooleanField(default=False)
 

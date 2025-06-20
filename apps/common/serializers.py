@@ -896,3 +896,55 @@ class PodcastDetailSerializer(serializers.ModelSerializer):
     def get_description(self, obj):
         request = self.context['request']
         return utils.get_translation(obj, 'description', request)
+
+
+class GallerySerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
+    image_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Gallery
+        fields = ('id', 'title', 'url', 'view_count', 'created_at', 'image_count')
+
+    def get_title(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'title', request)
+
+    @staticmethod
+    def get_image_count(obj):
+        main_image = obj.images.filter(type='gallery', is_active=True).count()
+        return main_image if main_image else None
+
+class GalleryDetailSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    images = ImageSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = models.Gallery
+        fields = ('id', 'title', 'description', 'images')
+
+    def get_title(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'title', request)
+
+    def get_description(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'description', request)
+
+
+class NationalValueSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.NationalValue
+        fields = ('id', 'title', 'description', 'icon')
+
+    def get_title(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'title', request)
+
+    def get_description(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'description', request)
