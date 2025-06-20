@@ -32,6 +32,24 @@ ERROR_MESSAGES = {
     }
 }
 
+messages = {
+    'uz': {
+        'attendee_required': "Ism va telefon raqami va boshqalar ishtirokchilar uchun majburiy.",
+        'member_expert_required': "Ism, telefon raqami va kompaniya a'zolar va ekspertlar uchun majburiy.",
+        'expert_revenue': "Ekspert uchun yillik daromad kamida $1,000,000 bo'lishi kerak."
+    },
+    'en': {
+        'attendee_required': "Full name and phone and others are required for attendees.",
+        'member_expert_required': "Full name, phone, and company are required for members and experts.",
+        'expert_revenue': "Annual revenue must be at least $1,000,000 for experts."
+    },
+    'ru': {
+        'attendee_required': "Имя и номер телефона обязательны для участников.",
+        'member_expert_required': "Имя, номер телефона и компания обязательны для членов и экспертов.",
+        'expert_revenue': "Годовой доход для эксперта должен быть не менее $1,000,000."
+    }
+}
+
 
 def upload_to(instance, filename):
     ext = filename.split('.')[-1]

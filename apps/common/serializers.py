@@ -1,3 +1,4 @@
+import re
 from uuid import uuid4
 
 from django.core.cache import cache
@@ -917,6 +918,7 @@ class GallerySerializer(serializers.ModelSerializer):
         main_image = obj.images.filter(type='gallery', is_active=True).count()
         return main_image if main_image else None
 
+
 class GalleryDetailSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
@@ -992,6 +994,67 @@ class UploaderSerializer(serializers.ModelSerializer):
         return None
 
 
+PHONE_REGEX = re.compile(r'^\+?1?\d{9,15}$')
 
 
+class ContactFormSerializer(serializers.ModelSerializer):
+    business_type = serializers.PrimaryKeyRelatedField(
+        queryset=models.GenericChoice.objects.filter(type='business_type'),
+        required=False
+    )
+    business_experience = serializers.PrimaryKeyRelatedField(
+        queryset=models.GenericChoice.objects.filter(type='experience'),
+        required=False
+    )
+    project_count = serializers.PrimaryKeyRelatedField(
+        queryset=models.GenericChoice.objects.filter(type='project_count'),
+        required=False
+    )
+    employee_count = serializers.PrimaryKeyRelatedField(
+        queryset=models.GenericChoice.objects.filter(type='employee_count'),
+        required=False
+    )
 
+    phone = serializers.CharField()
+
+    class Meta:
+        model = models.ContactForm
+        fields = [
+            'type', 'full_name', 'phone', 'company', 'annual_revenue',
+            'business_type', 'business_experience', 'project_count',
+            'employee_count', 'telegram', 'linkedin', 'instagram', 'facebook'
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['type'] = serializers.ChoiceField(
+            choices=models.ContactForm.ContactType.choices,
+            required=True
+        )
+
+    @staticmethod
+    def validate_phone(value):
+        if not PHONE_REGEX.match(value):
+            raise serializers.ValidationError("Telefon raqami noto‘g‘ri formatda. Masalan: +998901234567")
+        return value
+
+    def validate(self, data):
+        contact_type = data.get('type')
+        lang = utils.get_language(self.context.get('request'))
+
+        if contact_type == 'attendee':
+            if not data.get('full_name') or not data.get('phone'):
+                raise serializers.ValidationError(utils.messages[lang]['attendee_required'])
+
+        elif contact_type in ['member', 'expert']:
+            required_fields = ['full_name', 'phone', 'company', 'annual_revenue', 'business_type', 'business_experience', 'project_count', 'employee_count']
+            for field in required_fields:
+                if not data.get(field):
+                    raise serializers.ValidationError(utils.messages[lang]['member_expert_required'])
+
+            if contact_type == 'expert':
+                revenue = data.get('annual_revenue')
+                if not revenue or revenue < 1_000_000:
+                    raise serializers.ValidationError(utils.messages[lang]['expert_revenue'])
+
+        return data

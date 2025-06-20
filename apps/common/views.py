@@ -197,3 +197,15 @@ class NationalValueListCreateAPIView(generics.ListCreateAPIView):
 class FileUploadView(generics.CreateAPIView):
     queryset = models.Uploader.objects.filter(is_active=True)
     serializer_class = serializers.UploaderSerializer
+
+
+class ContactFormView(generics.CreateAPIView):
+    serializer_class = serializers.ContactFormSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": f"{serializer.validated_data['type']} form submitted successfully"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

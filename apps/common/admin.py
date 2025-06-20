@@ -192,7 +192,7 @@ class GalleryAdmin(admin.ModelAdmin):
 
 @admin.register(GenericChoice)
 class GenericChoiceAdmin(admin.ModelAdmin):
-    list_display = ['name_en', 'type']
+    list_display = ['id', 'name_en', 'type']
     list_filter = ['type']
     search_fields = ['name_en']
 

@@ -39,7 +39,9 @@ urlpatterns = [
 
     path('national-values/', views.NationalValueListCreateAPIView.as_view()),
 
-    path('uploader/', views.FileUploadView.as_view())
+    path('uploader/', views.FileUploadView.as_view()),
+
+    path('contact-form/', views.ContactFormView.as_view())
 
 ]
 urlpatterns += router.urls

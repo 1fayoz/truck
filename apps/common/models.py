@@ -201,7 +201,7 @@ class GenericChoice(BaseModel, NameTranslation):
     type = models.CharField(max_length=50, choices=ChoiceType.choices)
 
     def __str__(self):
-        return f"{self.name} ({self.get_type_display()})"
+        return f"({self.get_type_display()})"
 
 
 class ContactForm(BaseModel):
@@ -210,40 +210,45 @@ class ContactForm(BaseModel):
         MEMBER = 'member', "Member"
         EXPERT = 'expert', "Expert"
 
+    type = models.CharField(max_length=50, choices=ContactType.choices, default='attendee')
     full_name = models.CharField(max_length=255)
     phone = models.CharField(max_length=255)
-    company = models.CharField(max_length=255)
-    annual_revenue = models.BigIntegerField()
+    company = models.CharField(max_length=255, null=True, blank=True)
+    annual_revenue = models.BigIntegerField(null=True, blank=True)
 
     business_type = models.ForeignKey(
         GenericChoice,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name='business_type_choices'
     )
     business_experience = models.ForeignKey(
         GenericChoice,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name='experience_choices'
     )
     project_count = models.ForeignKey(
         GenericChoice,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name='project_count_choices'
     )
     employee_count = models.ForeignKey(
         GenericChoice,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name='employee_count_choices'
     )
 
-    telegram = models.CharField(max_length=255)
-    linkedin = models.CharField(max_length=255)
-    instagram = models.CharField(max_length=255)
-    facebook = models.CharField(max_length=255)
+    telegram = models.CharField(max_length=255, null=True, blank=True)
+    linkedin = models.CharField(max_length=255, null=True, blank=True)
+    instagram = models.CharField(max_length=255, null=True, blank=True)
+    facebook = models.CharField(max_length=255, null=True, blank=True)
 
 
 class Partners(BaseModel, NameTranslation):
