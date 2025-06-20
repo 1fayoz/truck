@@ -8,3 +8,4 @@ djangorestframework
 django-filter
 redis
 pillow
+requests

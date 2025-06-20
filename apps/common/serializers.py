@@ -1071,3 +1071,22 @@ class ContactFormSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError(utils.messages[lang]['expert_revenue'])
 
         return data
+
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+
+        message = (
+            f"<b>Yangi Azo:</b>\n"
+            f"👤 Ism: {instance.full_name}\n"
+            f"📞 Telefon: {instance.phone}\n"
+            f"🏢 Kompaniya: {instance.company}\n"
+            f"💰 Daromad: {instance.annual_revenue}\n"
+            f"📦 Loyihalar: {instance.project_count}\n"
+            f"👥 Xodimlar: {instance.employee_count}\n"
+            f"📱 Telegram: {instance.telegram}\n"
+            f"📷 Instagram: {instance.instagram}"
+        )
+
+        utils.send_telegram_message("7126526134:AAGW-MSkHGk7Kr0tXvpOPs4HhU0JmwEBxL0", "-1002685998409", message)
+
+        return instance
