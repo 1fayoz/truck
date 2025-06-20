@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.core.cache import cache
 from django.db.models import Avg, Count
 from rest_framework import serializers
@@ -952,13 +954,11 @@ class NationalValueSerializer(serializers.ModelSerializer):
 
 class UploaderSerializer(serializers.ModelSerializer):
     file_url = serializers.SerializerMethodField()
+    file = serializers.FileField(required=True, write_only=True)
 
     class Meta:
         model = models.Uploader
         fields = ['id', 'type', 'file', 'file_url']
-        extra_kwargs = {
-            'file': {'write_only': True}
-        }
 
     @staticmethod
     def validate_type(value):
@@ -990,3 +990,8 @@ class UploaderSerializer(serializers.ModelSerializer):
         if obj.file and request:
             return request.build_absolute_uri(obj.file.url)
         return None
+
+
+
+
+

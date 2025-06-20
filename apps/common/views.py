@@ -1,5 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, views, generics
+from rest_framework import viewsets, views, generics, status
 from rest_framework.response import Response
 
 from apps.common import models
@@ -194,13 +194,6 @@ class NationalValueListCreateAPIView(generics.ListCreateAPIView):
         return serializers.NationalValueSerializer
 
 
-class FileUploadView(views.APIView):
-
-    @staticmethod
-    def post(request, *args, **kwargs):
-        serializer = serializers.UploaderSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            instance = serializer.save()
-            return Response(serializers.UploaderSerializer(instance, context={'request': request}).data,
-                            status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class FileUploadView(generics.CreateAPIView):
+    queryset = models.Uploader.objects.filter(is_active=True)
+    serializer_class = serializers.UploaderSerializer

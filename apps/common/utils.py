@@ -1,3 +1,9 @@
+import os
+from uuid import uuid4
+
+from apps.common import models
+
+
 def get_translation(obj, attr, request):
     if request:
         language = request.headers.get(
@@ -30,6 +36,6 @@ ERROR_MESSAGES = {
 def upload_to(instance, filename):
     ext = filename.split('.')[-1]
     filename = f"{uuid4()}.{ext}"
-    if instance.type == Uploader.TypeChoices.IMAGE:
+    if instance.type == models.Uploader.TypeChoices.IMAGE:
         return os.path.join('uploads/images/', filename)
     return os.path.join('uploads/videos/', filename)

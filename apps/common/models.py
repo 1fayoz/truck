@@ -265,7 +265,7 @@ class FAQ(BaseModel):
         return self.question_uz or " "
 
 
-class Uploader(models.Model):
+class Uploader(BaseModel):
     from .utils import upload_to
 
     class TypeChoices(models.TextChoices):
