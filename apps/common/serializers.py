@@ -485,7 +485,7 @@ class TravelSerializerDetail(serializers.ModelSerializer):
 
     def get_description(self, obj):
         request = self.context['request']
-        return utils.get_translation(obj, 'short_description', request)
+        return utils.get_translation(obj, 'description', request)
 
 
 class TravelSerializerCreate(serializers.ModelSerializer):
@@ -1200,5 +1200,6 @@ class SpeakerSerializerCreate(serializers.ModelSerializer):
     class Meta:
         model = models.Speaker
         fields = (
-            'name_uz', 'name_ru', 'name_en', 'image'
+            'name_uz', 'name_ru', 'name_en', 'image',
+            'bio_uz', 'bio_ru', 'bio_en'
         )
