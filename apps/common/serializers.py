@@ -123,16 +123,17 @@ class ClubStatisticsSerializer(serializers.Serializer):
 
 
 class IndustryDistributionSerializer(serializers.Serializer):
+    icon = serializers.URLField(read_only=True)
     industry = serializers.CharField()
     percentage = serializers.FloatField()
 
     @staticmethod
     def get_distribution(request):
-        cache_key = "industry_distribution"
-        cached_data = cache.get(cache_key)
-
-        if cached_data is not None:
-            return cached_data
+        # cache_key = "industry_distribution"
+        # cached_data = cache.get(cache_key)
+        #
+        # if cached_data is not None:
+        #     return cached_data
 
         total = models.ClubMember.objects.filter(is_active=True).count()
         if total == 0:
@@ -159,10 +160,11 @@ class IndustryDistributionSerializer(serializers.Serializer):
 
             result.append({
                 "industry": industry_name,
+                'icon': industry_obj.icon,
                 "percentage": percentage
             })
 
-        cache.set(cache_key, result, timeout=18000)
+        # cache.set(cache_key, result, timeout=1)
         return result
 
 
@@ -1090,3 +1092,53 @@ class ContactFormSerializer(serializers.ModelSerializer):
         utils.send_telegram_message("7126526134:AAGW-MSkHGk7Kr0tXvpOPs4HhU0JmwEBxL0", "-1002685998409", message)
 
         return instance
+
+
+class GenericChoiceSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.GenericChoice
+        fields = (
+            'id', 'name', 'type'
+        )
+
+    def get_name(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj, 'name', request)
+
+
+class GenericChoiceSerializerCreate(serializers.ModelSerializer):
+    name_uz = serializers.CharField(max_length=255, required=True)
+    name_ru = serializers.CharField(max_length=255, required=True)
+    name_en = serializers.CharField(max_length=255, required=True)
+
+    class Meta:
+        model = models.GenericChoice
+        fields = (
+            'name_uz', 'name_ru', 'name_en', 'type'
+        )
+
+
+class TravelCountrySerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.TravelCountry
+        fields = ('id', 'name')
+
+    def get_name(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj, 'name', request)
+
+
+class TravelCountrySerializerCreate(serializers.ModelSerializer):
+    name_uz = serializers.CharField(max_length=255, required=True)
+    name_ru = serializers.CharField(max_length=255, required=True)
+    name_en = serializers.CharField(max_length=255, required=True)
+
+    class Meta:
+        model = models.TravelCountry
+        fields = (
+            'name_uz', 'name_ru', 'name_en'
+        )

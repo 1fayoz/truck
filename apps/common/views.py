@@ -206,6 +206,32 @@ class ContactFormView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": f"{serializer.validated_data['type']} form submitted successfully"}, status=status.HTTP_201_CREATED)
+            return Response({"message": f"{serializer.validated_data['type']} form submitted successfully"},
+                            status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class GenericChoiceViewSet(viewsets.ModelViewSet):
+    queryset = models.GenericChoice.objects.filter(is_active=True)
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['type']
+    http_method_names = ['get', 'post', 'patch']
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.GenericChoiceSerializerCreate
+        elif self.request.method == 'PATCH':
+            return serializers.GenericChoiceSerializerCreate
+        return serializers.GenericChoiceSerializer
+
+
+class TravelCountryViewSet(viewsets.ModelViewSet):
+    queryset = models.TravelCountry.objects.filter(is_active=True)
+    http_method_names = ['get', 'post', 'patch']
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.TravelCountrySerializerCreate
+        elif self.request.method == 'PATCH':
+            return serializers.TravelCountrySerializerCreate
+        return serializers.TravelCountrySerializer

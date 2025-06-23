@@ -2,7 +2,7 @@ from .extra_models import *
 
 
 class Industry(BaseModel, NameTranslation):
-    icon = models.CharField(max_length=255)
+    icon = models.URLField()
 
 
 class Company(BaseModel, NameTranslation):
@@ -93,18 +93,18 @@ class PodcastSpeaker(models.Model):
 
 
 class TravelCountry(BaseModel, NameTranslation):
+    icon = models.URLField(null=True, blank=True)
     pass
 
 
 class Travel(BaseModel, DescriptionTranslation, ShortDescriptionTranslation):
     class TravelStatus(models.TextChoices):
-        PENDING = 'pending', "Pending"
         WAITING = 'waiting', "Waiting"
         BEEN = 'been', "Been"
 
     country = models.ForeignKey(TravelCountry, on_delete=models.SET_NULL, null=True)
     view_count = models.BigIntegerField(default=0)
-    status = models.CharField(max_length=20, choices=TravelStatus.choices, default=TravelStatus.PENDING)
+    status = models.CharField(max_length=20, choices=TravelStatus.choices, default=TravelStatus.WAITING)
 
 
 class Tag(BaseModel):

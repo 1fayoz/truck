@@ -9,6 +9,8 @@ router.register(r'club/offers', views.ClubOfferViewSet, basename='club-offer')
 router.register('exclusive-video', views.ExclusiveVideosListAPIView, basename='exclusive-video')
 router.register('partner', views.PartnersModelViewSet, basename='partner')
 router.register('faq', views.FAQViewSet, basename='faq')
+router.register('form/choice', views.GenericChoiceViewSet, basename='form-choice')
+router.register('country', views.TravelCountryViewSet, basename='country')
 
 urlpatterns = [
     path('club/stats/', views.ClubStatisticsAPIView.as_view()),
