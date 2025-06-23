@@ -46,7 +46,8 @@ urlpatterns = [
 
     path('uploader/', views.FileUploadView.as_view()),
 
-    path('contact-form/', views.ContactFormView.as_view())
+    path('contact-form/', views.ContactFormView.as_view()),
 
+    path('search/', views.SearchAPIView.as_view())
 ]
 urlpatterns += router.urls

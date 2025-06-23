@@ -1203,3 +1203,6 @@ class SpeakerSerializerCreate(serializers.ModelSerializer):
             'name_uz', 'name_ru', 'name_en', 'image',
             'bio_uz', 'bio_ru', 'bio_en'
         )
+
+
+

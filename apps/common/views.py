@@ -2,7 +2,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, views, generics, status
 from rest_framework.response import Response
 
-from apps.common import models
+from apps.common import models, utils
 from apps.common import serializers
 
 
@@ -264,3 +264,19 @@ class SpeakerViewSet(viewsets.ModelViewSet):
         elif self.request.method == 'PATCH':
             return serializers.SpeakerSerializerCreate
         return serializers.SpeakerSerializer
+
+
+class SearchAPIView(views.APIView):
+
+    @staticmethod
+    def get(request):
+        query = request.query_params.get('q', '')
+        if not query:
+            return Response({'error': 'Query parameter "q" is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        results = utils.search_across_models(query)
+        return Response({
+            'query': query,
+            'results': results,
+            'count': len(results),
+        }, status=status.HTTP_200_OK)
