@@ -1125,7 +1125,7 @@ class TravelCountrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.TravelCountry
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'icon')
 
     def get_name(self, obj):
         request = self.context.get('request')
@@ -1136,9 +1136,51 @@ class TravelCountrySerializerCreate(serializers.ModelSerializer):
     name_uz = serializers.CharField(max_length=255, required=True)
     name_ru = serializers.CharField(max_length=255, required=True)
     name_en = serializers.CharField(max_length=255, required=True)
+    icon = serializers.URLField(required=True)
 
     class Meta:
         model = models.TravelCountry
         fields = (
-            'name_uz', 'name_ru', 'name_en'
+            'name_uz', 'name_ru', 'name_en', 'icon'
+        )
+
+
+class IndustrySerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Industry
+        fields = ('id', 'name', 'icon')
+
+    def get_name(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj, 'name', request)
+
+
+class IndustrySerializerCreate(serializers.ModelSerializer):
+    name_uz = serializers.CharField(max_length=255, required=True)
+    name_ru = serializers.CharField(max_length=255, required=True)
+    name_en = serializers.CharField(max_length=255, required=True)
+    icon = serializers.URLField(required=True)
+
+    class Meta:
+        model = models.Industry
+        fields = (
+            'name_uz', 'name_ru', 'name_en', 'icon'
+        )
+
+
+class SpeakerSerializerCreate(serializers.ModelSerializer):
+    name_uz = serializers.CharField(max_length=255, required=True)
+    name_ru = serializers.CharField(max_length=255, required=True)
+    name_en = serializers.CharField(max_length=255, required=True)
+
+    bio_en = serializers.CharField(max_length=255, required=False)
+    bio_ru = serializers.CharField(max_length=255, required=False)
+    bio_uz = serializers.CharField(max_length=255, required=False)
+
+    class Meta:
+        model = models.Speaker
+        fields = (
+            'name_uz', 'name_ru', 'name_en', 'image'
         )

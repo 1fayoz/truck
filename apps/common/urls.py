@@ -11,6 +11,8 @@ router.register('partner', views.PartnersModelViewSet, basename='partner')
 router.register('faq', views.FAQViewSet, basename='faq')
 router.register('form/choice', views.GenericChoiceViewSet, basename='form-choice')
 router.register('country', views.TravelCountryViewSet, basename='country')
+router.register('industry', views.IndustryViewSet, basename='industry')
+router.register('speaker', views.SpeakerViewSet, basename='speaker')
 
 urlpatterns = [
     path('club/stats/', views.ClubStatisticsAPIView.as_view()),

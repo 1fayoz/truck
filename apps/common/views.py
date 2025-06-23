@@ -235,3 +235,27 @@ class TravelCountryViewSet(viewsets.ModelViewSet):
         elif self.request.method == 'PATCH':
             return serializers.TravelCountrySerializerCreate
         return serializers.TravelCountrySerializer
+
+
+class IndustryViewSet(viewsets.ModelViewSet):
+    queryset = models.Industry.objects.filter(is_active=True)
+    http_method_names = ['get', 'post', 'patch']
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.IndustrySerializerCreate
+        elif self.request.method == 'PATCH':
+            return serializers.IndustrySerializerCreate
+        return serializers.IndustrySerializer
+
+
+class SpeakerViewSet(viewsets.ModelViewSet):
+    queryset = models.Speaker.objects.filter(is_active=True)
+    http_method_names = ['get', 'post', 'patch']
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.SpeakerSerializerCreate
+        elif self.request.method == 'PATCH':
+            return serializers.SpeakerSerializerCreate
+        return serializers.SpeakerSerializer
