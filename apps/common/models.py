@@ -167,6 +167,7 @@ class Events(BaseModel, TitleTranslation, DescriptionTranslation, LocationTransl
     banner = models.ForeignKey(Banner, on_delete=models.SET_NULL, null=True)
     date = models.DateTimeField()
     duration = models.CharField(max_length=255)
+    is_zoom = models.BooleanField(default=False)
 
 
 class EventSpeaker(models.Model):

@@ -813,7 +813,8 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Events
         fields = ('id', 'image', 'title', 'status',
-                  'location', 'date', 'duration', 'event_speakers'
+                  'location', 'date', 'duration', 'event_speakers',
+                  'is_zoom'
                   )
 
     def get_title(self, obj):
