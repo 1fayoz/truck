@@ -470,6 +470,24 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = ('id', 'image', 'is_main')
 
 
+class TravelSerializerDetail(serializers.ModelSerializer):
+    country = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    images = ImageSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = models.Travel
+        fields = ('id', 'country', 'view_count', 'status', 'description', 'created_at', 'images')
+
+    def get_country(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj.country, 'name', request) if obj.country else None
+
+    def get_description(self, obj):
+        request = self.context['request']
+        return utils.get_translation(obj, 'short_description', request)
+
+
 class TravelSerializerCreate(serializers.ModelSerializer):
     images = ImageSerializer(many=True, write_only=True)
 

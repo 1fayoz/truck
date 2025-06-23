@@ -95,6 +95,11 @@ class TravelListAPIView(generics.ListCreateAPIView):
         return serializers.TravelSerializer
 
 
+class TravelRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = models.Travel.objects.filter(is_active=True)
+    serializer_class = serializers.TravelSerializerDetail
+
+
 class MembersSpeechListCreateAPIView(generics.ListCreateAPIView):
     queryset = models.VideoAndAudio.objects.filter(is_active=True, type='member_speech')
 
