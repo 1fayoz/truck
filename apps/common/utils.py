@@ -192,25 +192,20 @@ def search_across_models(query):
         text_fields = fields['text']
         numeric_fields = fields['numeric']
 
-        # Build Q objects for text fields
         text_q = Q()
         for field in text_fields:
             text_q |= Q(**{f'{field}__icontains': query})
 
-        # Build Q objects for numeric fields (if query is numeric)
         numeric_q = Q()
         if query.isdigit():
             for field in numeric_fields:
                 numeric_q |= Q(**{field: int(query)})
 
-        # Combine queries
         combined_q = text_q | numeric_q
 
-        # Query the model
         if combined_q:
             queryset = model.objects.filter(combined_q, is_active=True)
             for obj in queryset:
-                # Find matched fields and their values
                 matched_fields = []
                 for field in text_fields:
                     value = getattr(obj, field, None)
@@ -221,7 +216,6 @@ def search_across_models(query):
                     if query.isdigit() and value == int(query):
                         matched_fields.append({'field': field, 'value': value})
 
-                # Add to results
                 if matched_fields:
                     section = MODEL_SECTION_MAPPING.get(model_name, 'other')
                     results.append({
