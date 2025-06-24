@@ -31,6 +31,7 @@ urlpatterns = [
     path('business-course/', views.BusinessCourseListCreateAPIView.as_view()),
     path('business-course/<int:pk>/', views.BusinessCourseRetrieveAPIView.as_view()),
 
+    path('club/president/', views.ClubPresidentListApiView.as_view()),
     path('club/president/<int:pk>/', views.ClubPresidentRetrieveAPIView.as_view()),
 
     path('events/', views.EventListAPIView.as_view()),

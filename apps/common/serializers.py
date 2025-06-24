@@ -1211,4 +1211,24 @@ class SpeakerSerializerCreate(serializers.ModelSerializer):
         )
 
 
+class ClubPresidentListSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+    company = serializers.SerializerMethodField()
+    bio = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.ClubMember
+        fields = ('id', 'full_name', 'company', 'bio')
+
+    def get_full_name(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj, 'name', request)
+
+    def get_company(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj, 'company', request)
+
+    def get_bio(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj, 'bio', request)
 

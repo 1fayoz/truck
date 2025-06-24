@@ -280,3 +280,9 @@ class SearchAPIView(views.APIView):
             'results': results,
             'count': len(results),
         }, status=status.HTTP_200_OK)
+
+
+class ClubPresidentListApiView(generics.ListAPIView):
+    queryset = models.ClubMember.objects.filter(is_active=True, degree='president')
+    serializer_class = serializers.ClubPresidentListSerializer
+
