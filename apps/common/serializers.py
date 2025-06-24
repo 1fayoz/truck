@@ -700,12 +700,17 @@ class BusinessCourseSerializerDetail(serializers.ModelSerializer):
     banner = BannerSerializer()
     course_format = serializers.SerializerMethodField()
     course_modules = serializers.SerializerMethodField()
+    title = serializers.SerializerMethodField()
 
     class Meta:
         model = models.BusinessCourse
         fields = (
-            'id', 'description', 'banner', 'course_format', 'course_modules'
+            'id', 'title', 'description', 'banner', 'course_format', 'course_modules'
         )
+
+    def get_title(self, obj):
+        request = self.context.get('request')
+        return utils.get_translation(obj, 'title', request) if obj else None
 
     @staticmethod
     def get_course_modules(obj):
