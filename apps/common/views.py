@@ -352,3 +352,20 @@ class SearchAPIView(views.APIView):
 class ClubPresidentListApiView(generics.ListAPIView):
     queryset = models.ClubMember.objects.filter(is_active=True, degree='president')
     serializer_class = serializers.ClubPresidentListSerializer
+
+
+class HomeStatIconsViewSet(viewsets.ModelViewSet):
+    queryset = models.HomeStatIcons.objects.all()
+    serializer_class = serializers.HomeStatIconsSerializer
+    http_method_names = ['get', 'post', 'patch']
+
+    def create(self, request, *args, **kwargs):
+        icon = models.HomeStatIcons.objects.exists()
+        if icon:
+            lang = utils.get_language(request)
+            return Response(
+                {'error': utils.t_errors[lang]['icon']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        return super().create(request, *args, **kwargs)

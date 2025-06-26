@@ -13,6 +13,7 @@ router.register('form/choice', views.GenericChoiceViewSet, basename='form-choice
 router.register('country', views.TravelCountryViewSet, basename='country')
 router.register('industry', views.IndustryViewSet, basename='industry')
 router.register('speaker', views.SpeakerViewSet, basename='speaker')
+router.register('club/stats/icon', views.HomeStatIconsViewSet, basename='club-stats-icon')
 
 urlpatterns = [
     path('club/stats/', views.ClubStatisticsAPIView.as_view()),

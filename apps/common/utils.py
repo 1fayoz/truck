@@ -231,12 +231,15 @@ def search_across_models(query):
 t_errors = {
     'uz': {
         'degree': 'bu daraja bilan azo mavjud',
+        'icon': 'siz oldin yaratgansiz, endi faqat tahrirlay olasiz',
     },
     'ru': {
         'degree': 'bu daraja bilan azo mavjud',
+        'icon': 'siz oldin yaratgansiz, endi faqat tahrirlay olasiz',
     },
     'en': {
-        'degree': 'bu daraja bilan azo mavjud'
+        'degree': 'bu daraja bilan azo mavjud',
+        'icon': 'siz oldin yaratgansiz, endi faqat tahrirlay olasiz',
     }
 }
 
