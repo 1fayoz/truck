@@ -25,6 +25,9 @@ class ClubOfferViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return serializers.ClubOfferSerializerCreate
+        elif self.request.method == 'PATCH':
+            return serializers.ClubOfferSerializerCreate
+
         return serializers.ClubOfferSerializer
 
 
