@@ -712,6 +712,23 @@ class SpeakerSerializerCreate(serializers.ModelSerializer):
         )
 
 
+class CourseInfoSerializerCreate(serializers.ModelSerializer):
+    title_uz = serializers.CharField(required=True)
+    title_ru = serializers.CharField(required=True)
+    title_en = serializers.CharField(required=True)
+
+    description_ru = serializers.CharField(required=True)
+    description_uz = serializers.CharField(required=True)
+    description_en = serializers.CharField(required=True)
+
+    class Meta:
+        model = models.CourseInfo
+        fields = ('id', 'module_number', 'type', 'icon',
+                  'title_uz', 'title_ru', 'title_en', 'description_ru',
+                  'description_en', 'description_uz'
+                  )
+
+
 class BusinessCourseCreateSerializer(serializers.ModelSerializer):
     title_uz = serializers.CharField(required=True)
     title_ru = serializers.CharField(required=True)
@@ -728,12 +745,21 @@ class BusinessCourseCreateSerializer(serializers.ModelSerializer):
         queryset=models.Speaker.objects.filter(is_active=True)
     )
 
+    course_info = CourseInfoSerializerCreate(many=True, required=False)
+
     class Meta:
         model = models.BusinessCourse
         fields = ('id', 'title_ru', 'title_en', 'title_uz',
                   'description_ru', 'description_en', 'description_uz',
                   'image', 'banner', 'speaker'
                   )
+
+    def create(self, validated_data):
+        course_info_data = validated_data.pop('course_info', [])
+        business_course = models.BusinessCourse.objects.create(**validated_data)
+        for info_data in course_info_data:
+            models.CourseInfo.objects.create(business_course=business_course, **info_data)
+        return business_course
 
 
 class CourseInfoSerializer(serializers.ModelSerializer):
