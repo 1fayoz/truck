@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import (
     Industry, ClubMember, Autobiography, SocialLink, Metric, ClubOffer, Banner, Speaker, VideoAndAudio,
     Travel, Tag, News, Images, BusinessCourse, CourseInfo, NationalValue, Events, EventAgenda,
-    Gallery, GenericChoice, ContactForm, TravelCountry, Company, EventSpeaker, PodcastSpeaker, HomeStatIcons
+    Gallery, GenericChoice, ContactForm, TravelCountry, Company, EventSpeaker, PodcastSpeaker, HomeStatIcons, Uploader
 )
 
 # 🔹 Helper for image/icon preview
@@ -188,6 +188,12 @@ class GalleryAdmin(admin.ModelAdmin):
     list_display = ['title_en', 'type', 'view_count', 'url']
     list_filter = ['type']
     search_fields = ['title_en']
+
+
+@admin.register(Uploader)
+class GalleryAdmin(admin.ModelAdmin):
+    list_display = ['file', 'type']
+    list_filter = ['type']
 
 
 @admin.register(GenericChoice)
