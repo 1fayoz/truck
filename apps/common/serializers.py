@@ -583,6 +583,20 @@ class TravelSerializerCreate(serializers.ModelSerializer):
 
         return travel
 
+    def update(self, instance, validated_data):
+        images_data = validated_data.pop('images', None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if images_data is not None:
+            instance.images.filter(type='travel').delete()
+            for image_data in images_data:
+                models.Images.objects.create(travel=instance, type='travel', **image_data)
+
+        return instance
+
 
 class MembersSpeechSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()

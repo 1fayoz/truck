@@ -111,9 +111,13 @@ class TravelListAPIView(generics.ListCreateAPIView):
         return serializers.TravelSerializer
 
 
-class TravelRetrieveAPIView(generics.RetrieveAPIView):
+class TravelRetrieveAPIView(generics.RetrieveUpdateAPIView):
     queryset = models.Travel.objects.filter(is_active=True)
-    serializer_class = serializers.TravelSerializerDetail
+
+    def get_serializer_class(self):
+        if self.request.method == 'PATCH' or self.request.method == 'PUT':
+            return serializers.TravelSerializerCreate
+        return serializers.TravelSerializerDetail
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
