@@ -271,8 +271,13 @@ class NationalValueListCreateAPIView(generics.ListCreateAPIView):
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
-            return serializers.NationalValueSerializer
+            return serializers.NationalValueSerializerCreate
         return serializers.NationalValueSerializer
+
+
+class NationalValueUpdateAPIView(generics.UpdateAPIView):
+    queryset = models.NationalValue.objects.filter(is_active=True)
+    serializer_class = serializers.NationalValueSerializerCreate
 
 
 class FileUploadView(generics.CreateAPIView):
@@ -359,8 +364,10 @@ class SearchAPIView(views.APIView):
 
 
 class ClubPresidentListApiView(generics.ListAPIView):
-    queryset = models.ClubMember.objects.filter(is_active=True, degree='president')
+    queryset = models.ClubMember.objects.filter(is_active=True, degree__in=['president', 'director', 'assistant_director'])
     serializer_class = serializers.ClubPresidentListSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['degree']
 
 
 class HomeStatIconsViewSet(viewsets.ModelViewSet):

@@ -46,6 +46,7 @@ urlpatterns = [
     path('gallery/<int:pk>/', views.GalleryRetrieveAPIView.as_view()),
 
     path('national-values/', views.NationalValueListCreateAPIView.as_view()),
+    path('national-values/<int:pk>/', views.NationalValueUpdateAPIView.as_view()),
 
     path('uploader/', views.FileUploadView.as_view()),
 

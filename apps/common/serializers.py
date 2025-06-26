@@ -513,7 +513,6 @@ class ClubMemberSerializerCreate(serializers.ModelSerializer):
         return instance
 
 
-
 class TravelSerializer(serializers.ModelSerializer):
     country = serializers.SerializerMethodField()
     short_description = serializers.SerializerMethodField()
@@ -830,6 +829,7 @@ class BusinessCourseCreateSerializer(serializers.ModelSerializer):
                 models.CourseInfo.objects.create(business_course=instance, **info_data)
 
         return instance
+
 
 class CourseInfoSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()
@@ -1174,6 +1174,23 @@ class NationalValueSerializer(serializers.ModelSerializer):
         return utils.get_translation(obj, 'description', request)
 
 
+class NationalValueSerializerCreate(serializers.ModelSerializer):
+    title_uz = serializers.CharField(required=True)
+    title_en = serializers.CharField(required=True)
+    title_ru = serializers.CharField(required=True)
+
+    description_uz = serializers.CharField(required=True)
+    description_ru = serializers.CharField(required=True)
+    description_en = serializers.CharField(required=True)
+
+    class Meta:
+        model = models.NationalValue
+        fields = ('id', 'title_uz', 'title_en', 'title_ru',
+                  'description_uz', 'description_ru', 'description_en',
+                  'icon'
+                  )
+
+
 class UploaderSerializer(serializers.ModelSerializer):
     file_url = serializers.SerializerMethodField()
     file = serializers.FileField(required=True, write_only=True)
@@ -1380,10 +1397,11 @@ class ClubPresidentListSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
     company = serializers.SerializerMethodField()
     bio = serializers.SerializerMethodField()
+    social_links = SocialLinkSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.ClubMember
-        fields = ('id', 'full_name', 'company', 'bio')
+        fields = ('id', 'full_name', 'company', 'bio', 'social_links')
 
     def get_full_name(self, obj):
         request = self.context.get('request')
