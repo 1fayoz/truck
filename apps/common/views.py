@@ -203,9 +203,13 @@ class EventListAPIView(generics.ListCreateAPIView):
         return serializers.EventSerializer
 
 
-class EventRetrieveAPIView(generics.RetrieveAPIView):
+class EventRetrieveAPIView(generics.RetrieveUpdateAPIView):
     queryset = models.Events.objects.filter(is_active=True)
-    serializer_class = serializers.EventDetailSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'PATCH':
+            return serializers.EventSerializerCreate
+        return serializers.EventDetailSerializer
 
 
 class PodcastListCreateAPIView(generics.ListCreateAPIView):
@@ -364,7 +368,8 @@ class SearchAPIView(views.APIView):
 
 
 class ClubPresidentListApiView(generics.ListAPIView):
-    queryset = models.ClubMember.objects.filter(is_active=True, degree__in=['president', 'director', 'assistant_director'])
+    queryset = models.ClubMember.objects.filter(is_active=True,
+                                                degree__in=['president', 'director', 'assistant_director'])
     serializer_class = serializers.ClubPresidentListSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['degree']
