@@ -436,7 +436,7 @@ class ClubMemberSerializerCreate(serializers.ModelSerializer):
                     'degree': utils.t_errors[lang]['degree']
                 })
 
-            if not autobiographies or not isinstance(autobiographies, list) or len(autobiographies) == 0:
+            if degree == 'president' and (not autobiographies or not isinstance(autobiographies, list) or len(autobiographies) == 0):
                 lang = utils.get_language(self.context['request'])
                 raise serializers.ValidationError({
                     'autobiographies': utils.t_errors[lang]['autobiographies']
@@ -1120,7 +1120,8 @@ class PodcastSerializerCreate(serializers.ModelSerializer):
     class Meta:
         model = models.VideoAndAudio
         fields = ('id', 'title_uz', 'title_en', 'title_ru',
-                  'description_uz', 'description_ru', 'description_en'
+                  'description_uz', 'description_ru', 'description_en',
+                  'url', 'extra_image', 'type', 'members'
                   )
 
 
