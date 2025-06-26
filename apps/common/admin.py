@@ -190,9 +190,15 @@ class GalleryAdmin(admin.ModelAdmin):
     search_fields = ['title_en']
 
 
+def image_preview(obj):
+    if obj.file:
+        return format_html('<img src="{}" width="60" style="object-fit:contain;" />', obj.file)
+    return "-"
+
+
 @admin.register(Uploader)
 class GalleryAdmin(admin.ModelAdmin):
-    list_display = ['file', 'type']
+    list_display = [image_preview, 'type']
     list_filter = ['type']
 
 
