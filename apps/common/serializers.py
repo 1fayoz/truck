@@ -1229,7 +1229,7 @@ class GallerySerializerCreate(serializers.ModelSerializer):
         images_data = validated_data.pop('images')
         gallery = models.Gallery.objects.create(**validated_data)
         for image_data in images_data:
-            models.Images.objects.create(gallery=gallery, **image_data)
+            models.Images.objects.create(type='gallery', gallery=gallery, **image_data)
         return gallery
 
 
