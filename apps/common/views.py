@@ -14,6 +14,8 @@ class BannerViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return serializers.BannerSerializerCreate
+        elif self.request.method == 'PATCH':
+            return serializers.BannerSerializerCreate
         return serializers.BannerSerializer
 
 
@@ -61,6 +63,8 @@ class PartnersModelViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return serializers.PartnersSerializerCreate
+        elif self.request.method == 'PATCH':
+            return serializers.PartnersSerializerCreate
         return serializers.PartnersSerializer
 
 
@@ -70,6 +74,8 @@ class FAQViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
+            return serializers.FAQSerializerCreate
+        elif self.request.method == 'PATCH':
             return serializers.FAQSerializerCreate
         return serializers.FAQSerializer
 
