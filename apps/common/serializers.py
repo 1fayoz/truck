@@ -40,7 +40,7 @@ class BannerSerializerCreate(serializers.ModelSerializer):
     class Meta:
         model = models.Banner
         fields = (
-            'title_uz', 'title_en', 'title_ru', 'description_en', 'description_ru',
+            'id', 'title_uz', 'title_en', 'title_ru', 'description_en', 'description_ru',
             'description_uz', 'url'
         )
 
