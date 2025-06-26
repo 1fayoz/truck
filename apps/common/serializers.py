@@ -1216,13 +1216,48 @@ class GallerySerializerCreate(serializers.ModelSerializer):
     description_uz = serializers.CharField(required=True)
     description_ru = serializers.CharField(required=True)
     description_en = serializers.CharField(required=True)
+    images = ImageSerializer(many=True)
 
     class Meta:
         model = models.Gallery
         fields = ('id', 'title_uz', 'title_en', 'title_ru',
                   'description_uz', 'description_ru', 'description_en',
-                  'type', 'url'
+                  'type', 'url', 'images'
                   )
+
+    def create(self, validated_data):
+        images_data = validated_data.pop('images')
+        gallery = models.Gallery.objects.create(**validated_data)
+        for image_data in images_data:
+            models.Images.objects.create(gallery=gallery, **image_data)
+        return gallery
+
+
+class GallerySerializerUpdate(serializers.ModelSerializer):
+    images = ImageSerializer(many=True, write_only=True, required=False)
+
+    class Meta:
+        model = models.Gallery
+        fields = (
+            'id',
+            'title_uz', 'title_en', 'title_ru',
+            'description_uz', 'description_ru', 'description_en',
+            'type', 'url',
+            'images'
+        )
+
+    def update(self, instance, validated_data):
+        images_data = validated_data.pop('images', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if images_data is not None:
+            instance.images.all().delete()
+            for image_data in images_data:
+                models.Images.objects.create(gallery=instance, **image_data)
+
+        return instance
 
 
 class GalleryDetailSerializer(serializers.ModelSerializer):

@@ -265,13 +265,17 @@ class GalleryListCreateAPIView(generics.ListCreateAPIView):
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
-            return serializers.GallerySerializer
+            return serializers.GallerySerializerCreate
         return serializers.GallerySerializer
 
 
-class GalleryRetrieveAPIView(generics.RetrieveAPIView):
+class GalleryRetrieveAPIView(generics.RetrieveUpdateAPIView):
     queryset = models.Gallery.objects.filter(is_active=True, type='picture')
-    serializer_class = serializers.GalleryDetailSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'PATCH':
+            return serializers.GallerySerializerUpdate
+        return serializers.GalleryDetailSerializer
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
