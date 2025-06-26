@@ -371,7 +371,7 @@ class AutobiographySerializerCreate(serializers.ModelSerializer):
     class Meta:
         model = models.Autobiography
         fields = ('id', 'description_en', 'description_ru', 'description_uz',
-                  'year', 'member', 'order'
+                  'year', 'order'
                   )
 
 
