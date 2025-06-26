@@ -1208,6 +1208,23 @@ class GallerySerializer(serializers.ModelSerializer):
         return main_image if main_image else None
 
 
+class GallerySerializerCreate(serializers.ModelSerializer):
+    title_uz = serializers.CharField(required=True)
+    title_en = serializers.CharField(required=True)
+    title_ru = serializers.CharField(required=True)
+
+    description_uz = serializers.CharField(required=True)
+    description_ru = serializers.CharField(required=True)
+    description_en = serializers.CharField(required=True)
+
+    class Meta:
+        model = models.Gallery
+        fields = ('id', 'title_uz', 'title_en', 'title_ru',
+                  'description_uz', 'description_ru', 'description_en',
+                  'type', 'url'
+                  )
+
+
 class GalleryDetailSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
@@ -1470,7 +1487,7 @@ class ClubPresidentListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ClubMember
-        fields = ('id', 'full_name', 'company', 'bio', 'social_links')
+        fields = ('id', 'full_name', 'company', 'bio', 'social_links', 'degree')
 
     def get_full_name(self, obj):
         request = self.context.get('request')
