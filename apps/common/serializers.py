@@ -220,7 +220,7 @@ class FAQSerializerCreate(serializers.ModelSerializer):
     class Meta:
         model = models.FAQ
         fields = ('id', 'question_uz', 'question_en', 'question_ru',
-                  'answer_uz', 'answer_en', 'answer_ru', 'link'
+                  'answer_uz', 'answer_en', 'answer_ru'
                   )
 
 
