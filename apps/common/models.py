@@ -136,7 +136,7 @@ class Images(BaseModel):
 
 
 class BusinessCourse(BaseModel, TitleTranslation, DescriptionTranslation):
-    view_count = models.BigIntegerField()
+    view_count = models.BigIntegerField(default=0)
     image = models.URLField()
     speaker = models.ForeignKey(Speaker, on_delete=models.SET_NULL, null=True)
     banner = models.ForeignKey(Banner, on_delete=models.SET_NULL, null=True)
