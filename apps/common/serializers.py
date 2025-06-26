@@ -751,7 +751,7 @@ class BusinessCourseCreateSerializer(serializers.ModelSerializer):
         model = models.BusinessCourse
         fields = ('id', 'title_ru', 'title_en', 'title_uz',
                   'description_ru', 'description_en', 'description_uz',
-                  'image', 'banner', 'speaker'
+                  'image', 'banner', 'speaker', 'course_info'
                   )
 
     def create(self, validated_data):
