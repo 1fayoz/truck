@@ -220,7 +220,7 @@ class FAQSerializerCreate(serializers.ModelSerializer):
     class Meta:
         model = models.FAQ
         fields = ('id', 'question_uz', 'question_en', 'question_ru',
-                  'answer_uz', 'answer_en', 'answer_ru', 'link'
+                  'answer_uz', 'answer_en', 'answer_ru'
                   )
 
 
@@ -403,6 +403,25 @@ class ClubMemberSerializerCreate(serializers.ModelSerializer):
                   'age', 'image', 'join_date', 'experience', 'type', 'degree', 'industry',
                   'social_links', 'metric'
                   )
+
+    def validate(self, attrs):
+        degree = attrs.get('degree')
+
+        if degree in ['president', 'director', 'assistant_director']:
+            existing = models.ClubMember.objects.filter(
+                is_active=True,
+                degree=degree
+            )
+            if self.instance:
+                existing = existing.exclude(pk=self.instance.pk)
+
+            if existing.exists():
+                lang = utils.get_language(self.context['request'])
+                raise serializers.ValidationError({
+                    'degree': utils.t_errors[lang]['degree']
+                })
+
+        return attrs
 
     def create(self, validated_data):
         social_links_data = validated_data.pop('social_links', [])
@@ -831,6 +850,36 @@ class EventSerializer(serializers.ModelSerializer):
         return utils.get_translation(obj, 'location', request)
 
 
+class EventSerializerCreate(serializers.ModelSerializer):
+    title_uz = serializers.CharField(required=True)
+    title_en = serializers.CharField(required=True)
+    title_ru = serializers.CharField(required=True)
+
+    description_uz = serializers.CharField(required=True)
+    description_ru = serializers.CharField(required=True)
+    description_en = serializers.CharField(required=True)
+
+    location_uz = serializers.CharField(required=True)
+    location_ru = serializers.CharField(required=True)
+    location_en = serializers.CharField(required=True)
+
+    banner = BannerSerializerCreate(required=True)
+
+    class Meta:
+        model = models.Events
+        fields = ('id', 'title_uz', 'title_en', 'title_ru',
+                  'description_uz', 'description_ru', 'description_en',
+                  'location_uz', 'location_ru', 'location_en', 'status',
+                  'image', 'date', 'duration', 'is_zoom', 'banner'
+                  )
+
+    def create(self, validated_data):
+        banner_data = validated_data.pop('banner')
+        banner = models.Banner.objects.create(**banner_data)
+        validated_data['banner'] = banner
+        return super().create(validated_data)
+
+
 class EventAgendaSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
@@ -918,6 +967,22 @@ class PodcastSerializer(serializers.ModelSerializer):
         return utils.get_translation(obj, 'title', request)
 
 
+class PodcastSerializerCreate(serializers.ModelSerializer):
+    title_uz = serializers.CharField(required=True)
+    title_en = serializers.CharField(required=True)
+    title_ru = serializers.CharField(required=True)
+
+    description_uz = serializers.CharField(required=True)
+    description_ru = serializers.CharField(required=True)
+    description_en = serializers.CharField(required=True)
+
+    class Meta:
+        model = models.VideoAndAudio
+        fields = ('id', 'title_uz', 'title_en', 'title_ru',
+                  'description_uz', 'description_ru', 'description_en'
+                  )
+
+
 class PodcastDetailSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()
     podcasts_speaker = PodcastSpeakerSerializer(many=True, read_only=True)
@@ -929,6 +994,7 @@ class PodcastDetailSerializer(serializers.ModelSerializer):
                   'podcasts_speaker', 'type', 'extra_image', 'description',
                   'created_at'
                   )
+
 
     def get_title(self, obj):
         request = self.context['request']
@@ -1231,4 +1297,3 @@ class ClubPresidentListSerializer(serializers.ModelSerializer):
     def get_bio(self, obj):
         request = self.context.get('request')
         return utils.get_translation(obj, 'bio', request)
-

@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, views, generics, status
 from rest_framework.response import Response
@@ -71,7 +72,8 @@ class FAQViewSet(viewsets.ModelViewSet):
 
 
 class ClubMemberListAPIView(generics.ListCreateAPIView):
-    queryset = models.ClubMember.objects.filter(is_active=True, type__in=['member', 'expert'])
+    queryset = models.ClubMember.objects.filter(is_active=True, type__in=['member', 'expert']).exclude(
+        degree__in=['president', 'director', 'assistant_director'])
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -99,6 +101,19 @@ class TravelRetrieveAPIView(generics.RetrieveAPIView):
     queryset = models.Travel.objects.filter(is_active=True)
     serializer_class = serializers.TravelSerializerDetail
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        ip = utils.get_client_ip(request)
+        key = f"travel_view:{instance.id}:{ip}"
+
+        if not cache.get(key):
+            cache.set(key, True, timeout=86400)
+            instance.view_count += 1
+            instance.save(update_fields=["view_count"])
+
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
 
 class MembersSpeechListCreateAPIView(generics.ListCreateAPIView):
     queryset = models.VideoAndAudio.objects.filter(is_active=True, type='member_speech')
@@ -122,6 +137,19 @@ class NewsRetrieveAPIView(generics.RetrieveAPIView):
     queryset = models.News.objects.filter(is_active=True)
     serializer_class = serializers.NewsSerializerDetail
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        ip = utils.get_client_ip(request)
+        key = f"news_view:{instance.id}:{ip}"
+
+        if not cache.get(key):
+            cache.set(key, True, timeout=86400)
+            instance.view_count += 1
+            instance.save(update_fields=["view_count"])
+
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
 
 class BusinessCourseListCreateAPIView(generics.ListCreateAPIView):
     queryset = models.BusinessCourse.objects.filter(is_active=True)
@@ -136,6 +164,19 @@ class BusinessCourseRetrieveAPIView(generics.RetrieveAPIView):
     queryset = models.BusinessCourse.objects.filter(is_active=True)
     serializer_class = serializers.BusinessCourseSerializerDetail
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        ip = utils.get_client_ip(request)
+        key = f"course_view:{instance.id}:{ip}"
+
+        if not cache.get(key):
+            cache.set(key, True, timeout=86400)
+            instance.view_count += 1
+            instance.save(update_fields=["view_count"])
+
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
 
 class ClubPresidentRetrieveAPIView(generics.RetrieveAPIView):
     queryset = models.ClubMember.objects.filter(is_active=True, degree='president')
@@ -149,7 +190,7 @@ class EventListAPIView(generics.ListCreateAPIView):
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
-            return serializers.EventSerializer
+            return serializers.EventSerializerCreate
         return serializers.EventSerializer
 
 
@@ -173,6 +214,19 @@ class PodcastRetrieveAPIView(generics.RetrieveAPIView):
     queryset = models.VideoAndAudio.objects.filter(is_active=True, type__in=['video_podcast', 'audio_podcast'])
     serializer_class = serializers.PodcastDetailSerializer
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        ip = utils.get_client_ip(request)
+        key = f"podcast_view:{instance.id}:{ip}"
+
+        if not cache.get(key):
+            cache.set(key, True, timeout=86400)
+            instance.view_count += 1
+            instance.save(update_fields=["view_count"])
+
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
 
 class GalleryListCreateAPIView(generics.ListCreateAPIView):
     queryset = models.Gallery.objects.filter(is_active=True)
@@ -188,6 +242,19 @@ class GalleryListCreateAPIView(generics.ListCreateAPIView):
 class GalleryRetrieveAPIView(generics.RetrieveAPIView):
     queryset = models.Gallery.objects.filter(is_active=True, type='picture')
     serializer_class = serializers.GalleryDetailSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        ip = utils.get_client_ip(request)
+        key = f"gallery_view:{instance.id}:{ip}"
+
+        if not cache.get(key):
+            cache.set(key, True, timeout=86400)
+            instance.view_count += 1
+            instance.save(update_fields=["view_count"])
+
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
 
 class NationalValueListCreateAPIView(generics.ListCreateAPIView):
@@ -285,4 +352,3 @@ class SearchAPIView(views.APIView):
 class ClubPresidentListApiView(generics.ListAPIView):
     queryset = models.ClubMember.objects.filter(is_active=True, degree='president')
     serializer_class = serializers.ClubPresidentListSerializer
-

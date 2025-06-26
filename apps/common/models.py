@@ -24,7 +24,7 @@ class ClubMember(BaseModel, NameTranslation, BioTranslation, PositionTranslation
     image = models.URLField(null=True, blank=True)
     join_date = models.DateField()
     experience = models.IntegerField()
-    type = models.CharField(max_length=255, choices=TypeChoice.choices, default=TypeChoice.MEMBER)
+    type = models.CharField(max_length=255, choices=TypeChoice.choices, default=TypeChoice.MEMBER, null=True, blank=True)
     degree = models.CharField(max_length=255, choices=DegreeChoice.choices, default=DegreeChoice.PRESIDENT, null=True,
                               blank=True)
     industry = models.ForeignKey(Industry, on_delete=models.SET_NULL, null=True)
@@ -264,8 +264,6 @@ class FAQ(BaseModel):
     answer_uz = models.TextField()
     answer_en = models.TextField()
     answer_ru = models.TextField()
-
-    link = models.URLField()
 
     def __str__(self):
         return self.question_uz or " "

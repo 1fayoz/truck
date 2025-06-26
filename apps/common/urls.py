@@ -23,6 +23,7 @@ urlpatterns = [
 
     path('travel/', views.TravelListAPIView.as_view()),
     path('travel/<int:pk>/', views.TravelRetrieveAPIView.as_view()),
+
     path('member-speech/', views.MembersSpeechListCreateAPIView.as_view()),
 
     path('news/', views.NewsListCreateAPIView.as_view()),
