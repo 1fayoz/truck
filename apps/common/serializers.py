@@ -979,22 +979,46 @@ class EventSerializerCreate(serializers.ModelSerializer):
     location_en = serializers.CharField(required=True)
 
     banner = serializers.PrimaryKeyRelatedField(
-        queryset=models.Banner.objects.filter(is_active=True),
+        queryset=models.Banner.objects.filter(is_active=True)
+    )
+
+    speakers = serializers.ListField(
+        child=serializers.PrimaryKeyRelatedField(queryset=models.Speaker.objects.all()),
+        write_only=True
     )
 
     class Meta:
         model = models.Events
-        fields = ('id', 'title_uz', 'title_en', 'title_ru',
-                  'description_uz', 'description_ru', 'description_en',
-                  'location_uz', 'location_ru', 'location_en', 'status',
-                  'image', 'date', 'duration', 'is_zoom', 'banner'
-                  )
+        fields = (
+            'id', 'title_uz', 'title_en', 'title_ru',
+            'description_uz', 'description_ru', 'description_en',
+            'location_uz', 'location_ru', 'location_en', 'status',
+            'image', 'date', 'duration', 'is_zoom', 'banner', 'speakers'
+        )
 
     def create(self, validated_data):
-        banner_data = validated_data.pop('banner')
-        banner = models.Banner.objects.create(**banner_data)
-        validated_data['banner'] = banner
-        return super().create(validated_data)
+        speakers_data = validated_data.pop('speakers', [])
+        event = super().create(validated_data)
+
+        for speaker in speakers_data:
+            models.EventSpeaker.objects.create(events=event, speaker=speaker)
+
+        return event
+
+    def update(self, instance, validated_data):
+        speakers_data = validated_data.pop('speakers', None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if speakers_data is not None:
+            models.EventSpeaker.objects.filter(events=instance).delete()
+
+            for speaker in speakers_data:
+                models.EventSpeaker.objects.create(events=instance, speaker=speaker)
+
+        return instance
 
 
 class EventAgendaSerializer(serializers.ModelSerializer):
