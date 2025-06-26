@@ -1,11 +1,9 @@
 import re
 from uuid import uuid4
 
-from django.core.cache import cache
 from django.db.models import Avg, Count
-from rest_framework import serializers
-from datetime import datetime
 from django.utils.timezone import now
+from rest_framework import serializers
 
 from apps.common import models, utils
 
@@ -40,7 +38,7 @@ class BannerSerializerCreate(serializers.ModelSerializer):
     class Meta:
         model = models.Banner
         fields = (
-            'title_uz', 'title_en', 'title_ru', 'description_en', 'description_ru',
+            'id', 'title_uz', 'title_en', 'title_ru', 'description_en', 'description_ru',
             'description_uz', 'url'
         )
 
