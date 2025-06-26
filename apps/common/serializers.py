@@ -436,7 +436,8 @@ class ClubMemberSerializerCreate(serializers.ModelSerializer):
                     'degree': utils.t_errors[lang]['degree']
                 })
 
-            if degree == 'president' and (not autobiographies or not isinstance(autobiographies, list) or len(autobiographies) == 0):
+            if degree == 'president' and (
+                    not autobiographies or not isinstance(autobiographies, list) or len(autobiographies) == 0):
                 lang = utils.get_language(self.context['request'])
                 raise serializers.ValidationError({
                     'autobiographies': utils.t_errors[lang]['autobiographies']
@@ -1131,12 +1132,41 @@ class PodcastSerializerCreate(serializers.ModelSerializer):
     description_ru = serializers.CharField(required=True)
     description_en = serializers.CharField(required=True)
 
+    speakers = serializers.ListField(
+        child=serializers.PrimaryKeyRelatedField(queryset=models.Speaker.objects.all()),
+        write_only=True
+    )
+
     class Meta:
         model = models.VideoAndAudio
-        fields = ('id', 'title_uz', 'title_en', 'title_ru',
-                  'description_uz', 'description_ru', 'description_en',
-                  'url', 'extra_image', 'type', 'members'
-                  )
+        fields = (
+            'id', 'title_uz', 'title_en', 'title_ru',
+            'description_uz', 'description_ru', 'description_en',
+            'url', 'extra_image', 'type', 'members', 'speakers', 'duration'
+        )
+
+    def create(self, validated_data):
+        speakers_data = validated_data.pop('speakers', [])
+        event = super().create(validated_data)
+
+        for speaker in speakers_data:
+            models.EventSpeaker.objects.create(events=event, speaker=speaker)
+
+        return event
+
+    def update(self, instance, validated_data):
+        speakers_data = validated_data.pop('speakers', None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if speakers_data is not None:
+            models.EventSpeaker.objects.filter(events=instance).delete()
+            for speaker in speakers_data:
+                models.EventSpeaker.objects.create(events=instance, speaker=speaker)
+
+        return instance
 
 
 class PodcastDetailSerializer(serializers.ModelSerializer):

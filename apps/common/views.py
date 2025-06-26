@@ -232,13 +232,17 @@ class PodcastListCreateAPIView(generics.ListCreateAPIView):
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
-            return serializers.PodcastSerializer
+            return serializers.PodcastSerializerCreate
         return serializers.PodcastSerializer
 
 
-class PodcastRetrieveAPIView(generics.RetrieveAPIView):
+class PodcastRetrieveAPIView(generics.RetrieveUpdateAPIView):
     queryset = models.VideoAndAudio.objects.filter(is_active=True, type__in=['video_podcast', 'audio_podcast'])
-    serializer_class = serializers.PodcastDetailSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'PATCH':
+            return serializers.PodcastSerializerCreate
+        return serializers.PodcastDetailSerializer
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
