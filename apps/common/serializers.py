@@ -363,6 +363,18 @@ class ClubMemberSerializer(serializers.ModelSerializer):
         return utils.get_translation(obj, 'position', request)
 
 
+class AutobiographySerializerCreate(serializers.ModelSerializer):
+    description_en = serializers.CharField(required=True)
+    description_ru = serializers.CharField(required=True)
+    description_uz = serializers.CharField(required=True)
+
+    class Meta:
+        model = models.Autobiography
+        fields = ('id', 'description_en', 'description_ru', 'description_uz',
+                  'year', 'member', 'order'
+                  )
+
+
 class ClubMemberSerializerCreate(serializers.ModelSerializer):
     name_uz = serializers.CharField(required=True)
     name_en = serializers.CharField(required=True)
@@ -385,25 +397,30 @@ class ClubMemberSerializerCreate(serializers.ModelSerializer):
     image = serializers.URLField(required=True)
     join_date = serializers.DateField(required=True)
     experience = serializers.IntegerField(required=True)
-    type = serializers.ChoiceField(models.ClubMember.TypeChoice)
-    degree = serializers.ChoiceField(models.ClubMember.DegreeChoice)
+    type = serializers.ChoiceField(choices=models.ClubMember.TypeChoice)
+    degree = serializers.ChoiceField(choices=models.ClubMember.DegreeChoice)
 
     industry = serializers.PrimaryKeyRelatedField(
         queryset=models.Industry.objects.filter(is_active=True),
     )
     social_links = SocialLinkSerializerCreate(many=True, write_only=True)
     metric = MetricSerializerCreate(many=True, write_only=True)
+    autobiographies = AutobiographySerializerCreate(many=True, write_only=True, required=False)
 
     class Meta:
         model = models.ClubMember
-        fields = ('name_uz', 'name_en', 'name_ru', 'company',
-                  'position_uz', 'position_en', 'position_ru', 'bio_ru', 'bio_en', 'bio_uz',
-                  'age', 'image', 'join_date', 'experience', 'type', 'degree', 'industry',
-                  'social_links', 'metric'
-                  )
+        fields = (
+            'name_uz', 'name_en', 'name_ru', 'company',
+            'position_uz', 'position_en', 'position_ru',
+            'bio_ru', 'bio_en', 'bio_uz',
+            'age', 'image', 'join_date', 'experience',
+            'type', 'degree', 'industry',
+            'social_links', 'metric', 'autobiographies'
+        )
 
     def validate(self, attrs):
         degree = attrs.get('degree')
+        autobiographies = self.initial_data.get('autobiographies')
 
         if degree in ['president', 'director', 'assistant_director']:
             existing = models.ClubMember.objects.filter(
@@ -419,11 +436,18 @@ class ClubMemberSerializerCreate(serializers.ModelSerializer):
                     'degree': utils.t_errors[lang]['degree']
                 })
 
+            if not autobiographies or not isinstance(autobiographies, list) or len(autobiographies) == 0:
+                lang = utils.get_language(self.context['request'])
+                raise serializers.ValidationError({
+                    'autobiographies': utils.t_errors[lang]['autobiographies']
+                })
+
         return attrs
 
     def create(self, validated_data):
         social_links_data = validated_data.pop('social_links', [])
         metric_data = validated_data.pop('metric', [])
+        autobiography_data = validated_data.pop('autobiographies', [])
 
         lang = utils.get_language(self.context['request'])
 
@@ -443,19 +467,51 @@ class ClubMemberSerializerCreate(serializers.ModelSerializer):
 
         club_member = models.ClubMember.objects.create(**validated_data)
 
-        social_links = [
+        models.SocialLink.objects.bulk_create([
             models.SocialLink(member=club_member, **link_data)
             for link_data in social_links_data
-        ]
-        models.SocialLink.objects.bulk_create(social_links)
+        ])
 
-        metrics = [
+        models.Metric.objects.bulk_create([
             models.Metric(member=club_member, **metric)
             for metric in metric_data
-        ]
-        models.Metric.objects.bulk_create(metrics)
+        ])
+
+        models.Autobiography.objects.bulk_create([
+            models.Autobiography(member=club_member, **autobio)
+            for autobio in autobiography_data
+        ])
 
         return club_member
+
+    def update(self, instance, validated_data):
+        social_links_data = validated_data.pop('social_links', [])
+        metric_data = validated_data.pop('metric', [])
+        autobiography_data = validated_data.pop('autobiographies', [])
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        instance.social_links.all().delete()
+        models.SocialLink.objects.bulk_create([
+            models.SocialLink(member=instance, **link_data)
+            for link_data in social_links_data
+        ])
+
+        instance.metrics.all().delete()
+        models.Metric.objects.bulk_create([
+            models.Metric(member=instance, **metric)
+            for metric in metric_data
+        ])
+
+        instance.autobiographies.all().delete()
+        models.Autobiography.objects.bulk_create([
+            models.Autobiography(member=instance, **autobio)
+            for autobio in autobiography_data
+        ])
+        return instance
+
 
 
 class TravelSerializer(serializers.ModelSerializer):
@@ -761,6 +817,19 @@ class BusinessCourseCreateSerializer(serializers.ModelSerializer):
             models.CourseInfo.objects.create(business_course=business_course, **info_data)
         return business_course
 
+    def update(self, instance, validated_data):
+        course_info_data = validated_data.pop('course_info', None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if course_info_data is not None:
+            instance.course_info.all().delete()
+            for info_data in course_info_data:
+                models.CourseInfo.objects.create(business_course=instance, **info_data)
+
+        return instance
 
 class CourseInfoSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()
@@ -809,25 +878,6 @@ class BusinessCourseSerializerDetail(serializers.ModelSerializer):
     def get_description(self, obj):
         request = self.context.get('request')
         return utils.get_translation(obj, 'description', request) if obj else None
-
-
-class BusinessCourseSerializerCreate(serializers.ModelSerializer):
-    title_uz = serializers.CharField(required=True)
-    title_en = serializers.CharField(required=True)
-    title_ru = serializers.CharField(required=True)
-
-    description_uz = serializers.CharField(required=True)
-    description_ru = serializers.CharField(required=True)
-    description_en = serializers.CharField(required=True)
-
-    banner = BannerSerializer(required=True)
-
-    class Meta:
-        model = models.BusinessCourse
-        fields = ('id', 'title_uz', 'title_en', 'title_ru',
-                  'description_uz', 'description_ru', 'description_en',
-                  'banner'
-                  )
 
 
 class AutobiographySerializer(serializers.ModelSerializer):
@@ -974,7 +1024,7 @@ class EventDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Events
-        fields = ('id', 'title', 'description', 'location',
+        fields = ('id', 'title', 'description', 'location', 'status',
                   'date', 'duration', 'banner', 'agendas', 'remaining_seconds'
                   )
 

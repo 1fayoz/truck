@@ -232,14 +232,17 @@ t_errors = {
     'uz': {
         'degree': 'bu daraja bilan azo mavjud',
         'icon': 'siz oldin yaratgansiz, endi faqat tahrirlay olasiz',
+        'autobiographies': "Ushbu darajadagi a'zolar uchun autobiografiya kiritilishi shart.",
     },
     'ru': {
         'degree': 'bu daraja bilan azo mavjud',
         'icon': 'siz oldin yaratgansiz, endi faqat tahrirlay olasiz',
+        'autobiographies': "Autobiography is required for this degree level.",
     },
     'en': {
         'degree': 'bu daraja bilan azo mavjud',
         'icon': 'siz oldin yaratgansiz, endi faqat tahrirlay olasiz',
+        'autobiographies': "Для этой должности необходимо указать автобиографию.",
     }
 }
 

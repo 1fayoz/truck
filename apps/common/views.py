@@ -81,9 +81,14 @@ class ClubMemberListAPIView(generics.ListCreateAPIView):
         return serializers.ClubMemberSerializer
 
 
-class ClubMemberDetailRetrieveAPIView(generics.RetrieveAPIView):
+class ClubMemberDetailRetrieveAPIView(generics.RetrieveUpdateAPIView):
     queryset = models.ClubMember.objects.filter(is_active=True, type='member')
     serializer_class = serializers.ClubMemberDetailSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == 'PATCH':
+            return serializers.ClubMemberSerializerCreate
+        return serializers.ClubMemberDetailSerializer
 
 
 class TravelListAPIView(generics.ListCreateAPIView):
@@ -160,9 +165,13 @@ class BusinessCourseListCreateAPIView(generics.ListCreateAPIView):
         return serializers.BusinessCourseSerializer
 
 
-class BusinessCourseRetrieveAPIView(generics.RetrieveAPIView):
+class BusinessCourseRetrieveAPIView(generics.RetrieveUpdateAPIView):
     queryset = models.BusinessCourse.objects.filter(is_active=True)
-    serializer_class = serializers.BusinessCourseSerializerDetail
+
+    def get_serializer_class(self):
+        if self.request.method == 'PATCH':
+            return serializers.BusinessCourseCreateSerializer
+        return serializers.BusinessCourseSerializerDetail
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
