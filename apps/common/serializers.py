@@ -402,6 +402,25 @@ class ClubMemberSerializerCreate(serializers.ModelSerializer):
                   'social_links', 'metric'
                   )
 
+    def validate(self, attrs):
+        degree = attrs.get('degree')
+
+        if degree in ['president', 'director', 'assistant_director']:
+            existing = models.ClubMember.objects.filter(
+                is_active=True,
+                degree=degree
+            )
+            if self.instance:  # Bu update holati
+                existing = existing.exclude(pk=self.instance.pk)
+
+            if existing.exists():
+                lang = utils.get_language(self.context['request'])
+                raise serializers.ValidationError({
+                    'degree': utils.t_errors[lang]['degree']
+                })
+
+        return attrs
+
     def create(self, validated_data):
         social_links_data = validated_data.pop('social_links', [])
         metric_data = validated_data.pop('metric', [])
@@ -1016,7 +1035,6 @@ class PodcastDetailSerializer(serializers.ModelSerializer):
                   'podcasts_speaker', 'type', 'extra_image', 'description',
                   'created_at'
                   )
-
 
     def get_title(self, obj):
         request = self.context['request']
