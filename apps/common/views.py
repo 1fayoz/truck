@@ -156,7 +156,7 @@ class BusinessCourseListCreateAPIView(generics.ListCreateAPIView):
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
-            return serializers.BusinessCourseSerializer
+            return serializers.BusinessCourseCreateSerializer
         return serializers.BusinessCourseSerializer
 
 

@@ -40,7 +40,7 @@ class BannerSerializerCreate(serializers.ModelSerializer):
     class Meta:
         model = models.Banner
         fields = (
-            'id', 'title_uz', 'title_en', 'title_ru', 'description_en', 'description_ru',
+            'title_uz', 'title_en', 'title_ru', 'description_en', 'description_ru',
             'description_uz', 'url'
         )
 
@@ -220,7 +220,7 @@ class FAQSerializerCreate(serializers.ModelSerializer):
     class Meta:
         model = models.FAQ
         fields = ('id', 'question_uz', 'question_en', 'question_ru',
-                  'answer_uz', 'answer_en', 'answer_ru'
+                  'answer_uz', 'answer_en', 'answer_ru', 'link'
                   )
 
 
@@ -403,25 +403,6 @@ class ClubMemberSerializerCreate(serializers.ModelSerializer):
                   'age', 'image', 'join_date', 'experience', 'type', 'degree', 'industry',
                   'social_links', 'metric'
                   )
-
-    def validate(self, attrs):
-        degree = attrs.get('degree')
-
-        if degree in ['president', 'director', 'assistant_director']:
-            existing = models.ClubMember.objects.filter(
-                is_active=True,
-                degree=degree
-            )
-            if self.instance:
-                existing = existing.exclude(pk=self.instance.pk)
-
-            if existing.exists():
-                lang = utils.get_language(self.context['request'])
-                raise serializers.ValidationError({
-                    'degree': utils.t_errors[lang]['degree']
-                })
-
-        return attrs
 
     def create(self, validated_data):
         social_links_data = validated_data.pop('social_links', [])
@@ -697,6 +678,47 @@ class BusinessCourseSerializer(serializers.ModelSerializer):
         return utils.get_translation(obj, 'title', request) if obj else None
 
 
+class SpeakerSerializerCreate(serializers.ModelSerializer):
+    name_uz = serializers.CharField(max_length=255, required=True)
+    name_ru = serializers.CharField(max_length=255, required=True)
+    name_en = serializers.CharField(max_length=255, required=True)
+
+    bio_en = serializers.CharField(max_length=255, required=False)
+    bio_ru = serializers.CharField(max_length=255, required=False)
+    bio_uz = serializers.CharField(max_length=255, required=False)
+
+    class Meta:
+        model = models.Speaker
+        fields = (
+            'name_uz', 'name_ru', 'name_en', 'image',
+            'bio_uz', 'bio_ru', 'bio_en'
+        )
+
+
+class BusinessCourseCreateSerializer(serializers.ModelSerializer):
+    title_uz = serializers.CharField(required=True)
+    title_ru = serializers.CharField(required=True)
+    title_en = serializers.CharField(required=True)
+
+    description_ru = serializers.CharField(required=True)
+    description_uz = serializers.CharField(required=True)
+    description_en = serializers.CharField(required=True)
+
+    banner = serializers.PrimaryKeyRelatedField(
+        queryset=models.Banner.objects.filter(is_active=True)
+    )
+    speaker = serializers.PrimaryKeyRelatedField(
+        queryset=models.Speaker.objects.filter(is_active=True)
+    )
+
+    class Meta:
+        model = models.BusinessCourse
+        fields = ('id', 'title_ru', 'title_en', 'title_uz',
+                  'description_ru', 'description_en', 'description_uz',
+                  'image', 'banner', 'speaker'
+                  )
+
+
 class CourseInfoSerializer(serializers.ModelSerializer):
     title = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
@@ -863,7 +885,9 @@ class EventSerializerCreate(serializers.ModelSerializer):
     location_ru = serializers.CharField(required=True)
     location_en = serializers.CharField(required=True)
 
-    banner = BannerSerializerCreate(required=True)
+    banner = serializers.PrimaryKeyRelatedField(
+        queryset=models.Banner.objects.filter(is_active=True),
+    )
 
     class Meta:
         model = models.Events
@@ -1257,23 +1281,6 @@ class IndustrySerializerCreate(serializers.ModelSerializer):
         model = models.Industry
         fields = (
             'name_uz', 'name_ru', 'name_en', 'icon'
-        )
-
-
-class SpeakerSerializerCreate(serializers.ModelSerializer):
-    name_uz = serializers.CharField(max_length=255, required=True)
-    name_ru = serializers.CharField(max_length=255, required=True)
-    name_en = serializers.CharField(max_length=255, required=True)
-
-    bio_en = serializers.CharField(max_length=255, required=False)
-    bio_ru = serializers.CharField(max_length=255, required=False)
-    bio_uz = serializers.CharField(max_length=255, required=False)
-
-    class Meta:
-        model = models.Speaker
-        fields = (
-            'name_uz', 'name_ru', 'name_en', 'image',
-            'bio_uz', 'bio_ru', 'bio_en'
         )
 
 
