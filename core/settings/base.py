@@ -163,7 +163,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": f"{env.str('REDIS_URL', 'redis://localhost:6379/0')}",
+        "LOCATION": f"{env.str('REDIS_URL', 'redis://redis:6379/0')}",
         "KEY_PREFIX": "million_club",
     }
 }

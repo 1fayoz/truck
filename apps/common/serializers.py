@@ -410,7 +410,7 @@ class ClubMemberSerializerCreate(serializers.ModelSerializer):
                 is_active=True,
                 degree=degree
             )
-            if self.instance:  # Bu update holati
+            if self.instance:
                 existing = existing.exclude(pk=self.instance.pk)
 
             if existing.exists():
