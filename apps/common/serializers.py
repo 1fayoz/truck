@@ -621,7 +621,7 @@ class MembersSpeechSerializer(serializers.ModelSerializer):
 
     def get_company(self, obj):
         request = self.context.get('request')
-        return utils.get_translation(obj.members.company, 'name', request) if obj.members.company else None
+        return utils.get_translation(obj.members.company, 'name', request) if obj.members and obj.members.company else None
 
 
 class MembersSpeechSerializerCreate(serializers.ModelSerializer):
