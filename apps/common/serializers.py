@@ -1522,7 +1522,7 @@ class ClubPresidentListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ClubMember
-        fields = ('id', 'full_name', 'company', 'bio', 'social_links', 'degree')
+        fields = ('id', 'full_name', 'company', 'bio', 'social_links', 'degree', 'image')
 
     def get_full_name(self, obj):
         request = self.context.get('request')
