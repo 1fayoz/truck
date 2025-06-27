@@ -410,7 +410,7 @@ class ClubMemberSerializerCreate(serializers.ModelSerializer):
     class Meta:
         model = models.ClubMember
         fields = (
-            'name_uz', 'name_en', 'name_ru', 'company',
+            'id','name_uz', 'name_en', 'name_ru', 'company',
             'position_uz', 'position_en', 'position_ru',
             'bio_ru', 'bio_en', 'bio_uz',
             'age', 'image', 'join_date', 'experience',
