@@ -398,7 +398,7 @@ class ClubMemberSerializerCreate(serializers.ModelSerializer):
     join_date = serializers.DateField(required=True)
     experience = serializers.IntegerField(required=True)
     type = serializers.ChoiceField(choices=models.ClubMember.TypeChoice)
-    degree = serializers.ChoiceField(choices=models.ClubMember.DegreeChoice)
+    degree = serializers.ChoiceField(choices=models.ClubMember.DegreeChoice, required=False)
 
     industry = serializers.PrimaryKeyRelatedField(
         queryset=models.Industry.objects.filter(is_active=True),
@@ -422,7 +422,7 @@ class ClubMemberSerializerCreate(serializers.ModelSerializer):
         degree = attrs.get('degree')
         autobiographies = self.initial_data.get('autobiographies')
 
-        if degree in ['president', 'director', 'assistant_director']:
+        if degree and degree in ['president', 'director', 'assistant_director']:
             existing = models.ClubMember.objects.filter(
                 is_active=True,
                 degree=degree
