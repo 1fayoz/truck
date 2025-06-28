@@ -201,7 +201,7 @@ class BusinessCourseRetrieveAPIView(generics.RetrieveUpdateAPIView):
 
 
 class ClubPresidentRetrieveAPIView(generics.RetrieveAPIView):
-    queryset = models.ClubMember.objects.filter(is_active=True, degree='president')
+    queryset = models.ClubMember.objects.filter(is_active=True, degree__in=['president', 'director', 'assistant_director'])
     serializer_class = serializers.ClubPresidentDetailSerializer
 
 

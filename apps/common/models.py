@@ -4,9 +4,15 @@ from .extra_models import *
 class Industry(BaseModel, NameTranslation):
     icon = models.URLField()
 
+    def __str__(self):
+        return f"{self.name_en}"
+
 
 class Company(BaseModel, NameTranslation):
     pass
+
+    def __str__(self):
+        return f"{self.name_en}"
 
 
 class ClubMember(BaseModel, NameTranslation, BioTranslation, PositionTranslation):
@@ -24,7 +30,8 @@ class ClubMember(BaseModel, NameTranslation, BioTranslation, PositionTranslation
     image = models.URLField(null=True, blank=True)
     join_date = models.DateField()
     experience = models.IntegerField()
-    type = models.CharField(max_length=255, choices=TypeChoice.choices, default=TypeChoice.MEMBER, null=True, blank=True)
+    type = models.CharField(max_length=255, choices=TypeChoice.choices, default=TypeChoice.MEMBER, null=True,
+                            blank=True)
     degree = models.CharField(max_length=255, choices=DegreeChoice.choices, default=DegreeChoice.PRESIDENT, null=True,
                               blank=True)
     industry = models.ForeignKey(Industry, on_delete=models.SET_NULL, null=True)
@@ -35,10 +42,16 @@ class Autobiography(BaseModel, DescriptionTranslation):
     member = models.ForeignKey(ClubMember, on_delete=models.CASCADE, related_name='autobiographies')
     order = models.IntegerField(null=True, blank=True)
 
+    def __str__(self):
+        return f"{self.year}"
+
 
 class SocialLink(BaseModel, NameTranslation):
     url = models.URLField()
     member = models.ForeignKey(ClubMember, on_delete=models.CASCADE, related_name='social_links')
+
+    def __str__(self):
+        return f"{self.name_en}"
 
 
 class Metric(BaseModel, TitleTranslation):
@@ -52,10 +65,16 @@ class Metric(BaseModel, TitleTranslation):
     member = models.ForeignKey(ClubMember, on_delete=models.CASCADE, related_name='metric')
     type = models.CharField(max_length=255, choices=MetricType.choices, default=MetricType.BEFORE)
 
+    def __str__(self):
+        return f"{self.title_uz}"
+
 
 class ClubOffer(BaseModel, TitleTranslation, DescriptionTranslation):
     icon = models.CharField(max_length=255)
     link = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.title_uz}"
 
 
 class Banner(BaseModel, TitleTranslation, DescriptionTranslation):
@@ -67,9 +86,15 @@ class Banner(BaseModel, TitleTranslation, DescriptionTranslation):
     url = models.CharField(max_length=255)
     type = models.CharField(max_length=255, choices=BannerType.choices, default=BannerType.HOME)
 
+    def __str__(self):
+        return f"{self.title_uz}"
+
 
 class Speaker(BaseModel, NameTranslation, BioTranslation):
     image = models.URLField()
+
+    def __str__(self):
+        return f"{self.name_en}"
 
 
 class VideoAndAudio(BaseModel, TitleTranslation, DescriptionTranslation):
@@ -86,6 +111,9 @@ class VideoAndAudio(BaseModel, TitleTranslation, DescriptionTranslation):
     view_count = models.BigIntegerField(null=True)
     duration = models.CharField(max_length=255, null=True)
 
+    def __str__(self):
+        return f"{self.title_uz}"
+
 
 class PodcastSpeaker(models.Model):
     podcast = models.ForeignKey(VideoAndAudio, on_delete=models.CASCADE, related_name='podcasts_speaker')
@@ -96,6 +124,9 @@ class TravelCountry(BaseModel, NameTranslation):
     icon = models.URLField(null=True, blank=True)
     pass
 
+    def __str__(self):
+        return f"{self.name_en}"
+
 
 class Travel(BaseModel, DescriptionTranslation, ShortDescriptionTranslation):
     class TravelStatus(models.TextChoices):
@@ -105,6 +136,9 @@ class Travel(BaseModel, DescriptionTranslation, ShortDescriptionTranslation):
     country = models.ForeignKey(TravelCountry, on_delete=models.SET_NULL, null=True)
     view_count = models.BigIntegerField(default=0)
     status = models.CharField(max_length=20, choices=TravelStatus.choices, default=TravelStatus.WAITING)
+
+    def __str__(self):
+        return f"{self.id}"
 
 
 class Tag(BaseModel):
@@ -117,6 +151,9 @@ class Tag(BaseModel):
 class News(BaseModel, TitleTranslation, DescriptionTranslation, ShortDescriptionTranslation):
     view_count = models.BigIntegerField(default=0)
     tags = models.ManyToManyField(Tag)
+
+    def __str__(self):
+        return f"{self.title_uz}"
 
 
 class Images(BaseModel):
@@ -134,12 +171,18 @@ class Images(BaseModel):
 
     is_main = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"{self.id}"
+
 
 class BusinessCourse(BaseModel, TitleTranslation, DescriptionTranslation):
     view_count = models.BigIntegerField(default=0)
     image = models.URLField()
     speaker = models.ForeignKey(Speaker, on_delete=models.SET_NULL, null=True)
     banner = models.ForeignKey(Banner, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return f"{self.title_uz}"
 
 
 class CourseInfo(BaseModel, TitleTranslation, DescriptionTranslation):
@@ -152,9 +195,15 @@ class CourseInfo(BaseModel, TitleTranslation, DescriptionTranslation):
     type = models.CharField(max_length=255, choices=ModuleType.choices, default=ModuleType.MODULE)
     icon = models.CharField(max_length=255, null=True, blank=True)
 
+    def __str__(self):
+        return f"{self.title_uz}"
+
 
 class NationalValue(BaseModel, TitleTranslation, DescriptionTranslation):
     icon = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.title_uz}"
 
 
 class Events(BaseModel, TitleTranslation, DescriptionTranslation, LocationTranslation):
@@ -169,16 +218,25 @@ class Events(BaseModel, TitleTranslation, DescriptionTranslation, LocationTransl
     duration = models.CharField(max_length=255)
     is_zoom = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"{self.title_uz}"
+
 
 class EventSpeaker(models.Model):
     events = models.ForeignKey(Events, on_delete=models.CASCADE, related_name='event_speakers')
     speaker = models.ForeignKey(Speaker, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.id}"
 
 
 class EventAgenda(BaseModel, TitleTranslation, DescriptionTranslation):
     time = models.CharField(max_length=255)
     order = models.IntegerField()
     event = models.ForeignKey(Events, on_delete=models.CASCADE, null=True, related_name='agendas')
+
+    def __str__(self):
+        return f"{self.title_uz}"
 
 
 class Gallery(BaseModel, TitleTranslation, DescriptionTranslation):
@@ -189,6 +247,9 @@ class Gallery(BaseModel, TitleTranslation, DescriptionTranslation):
     type = models.CharField(max_length=50, choices=GalleryType.choices, default=GalleryType.PICTURE)
     url = models.URLField()
     view_count = models.BigIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.title_uz}"
 
 
 class ChoiceType(models.TextChoices):
@@ -255,6 +316,9 @@ class ContactForm(BaseModel):
 class Partners(BaseModel, NameTranslation):
     logo = models.URLField()
 
+    def __str__(self):
+        return f"{self.name_en}"
+
 
 class FAQ(BaseModel):
     question_uz = models.CharField(max_length=255)
@@ -289,4 +353,3 @@ class HomeStatIcons(models.Model):
     business_fields = models.URLField()
     export_scope = models.URLField()
     experience_years = models.URLField()
-
