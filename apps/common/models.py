@@ -36,6 +36,9 @@ class ClubMember(BaseModel, NameTranslation, BioTranslation, PositionTranslation
                               blank=True)
     industry = models.ForeignKey(Industry, on_delete=models.SET_NULL, null=True)
 
+    def __str__(self):
+        return f"{self.name_en}"
+
 
 class Autobiography(BaseModel, DescriptionTranslation):
     year = models.CharField(max_length=255)
