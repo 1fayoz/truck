@@ -32,7 +32,7 @@ class ClubMember(BaseModel, NameTranslation, BioTranslation, PositionTranslation
     experience = models.IntegerField()
     type = models.CharField(max_length=255, choices=TypeChoice.choices, default=TypeChoice.MEMBER, null=True,
                             blank=True)
-    degree = models.CharField(max_length=255, choices=DegreeChoice.choices, default=DegreeChoice.PRESIDENT, null=True,
+    degree = models.CharField(max_length=255, choices=DegreeChoice.choices, null=True,
                               blank=True)
     industry = models.ForeignKey(Industry, on_delete=models.SET_NULL, null=True)
 
