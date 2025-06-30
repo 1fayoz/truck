@@ -38,9 +38,9 @@ class TitleTranslation(models.Model):
 
 
 class DescriptionTranslation(models.Model):
-    description_uz = models.CharField(max_length=255, null=True, blank=True)
-    description_en = models.CharField(max_length=255, null=True, blank=True)
-    description_ru = models.CharField(max_length=255, null=True, blank=True)
+    description_uz = models.TextField(null=True, blank=True)
+    description_en = models.TextField(null=True, blank=True)
+    description_ru = models.TextField(null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -56,9 +56,9 @@ class LocationTranslation(models.Model):
 
 
 class BioTranslation(models.Model):
-    bio_uz = models.CharField(max_length=255, null=True, blank=True)
-    bio_en = models.CharField(max_length=255, null=True, blank=True)
-    bio_ru = models.CharField(max_length=255, null=True, blank=True)
+    bio_uz = models.TextField(null=True, blank=True)
+    bio_en = models.TextField(null=True, blank=True)
+    bio_ru = models.TextField(null=True, blank=True)
 
     class Meta:
         abstract = True
