@@ -98,7 +98,7 @@ class SpeakerAdmin(admin.ModelAdmin):
 
 @admin.register(VideoAndAudio)
 class VideoAndAudioAdmin(admin.ModelAdmin):
-    list_display = ['title_en', 'type', 'view_count', 'duration']
+    list_display = ['id', 'title_en', 'type', 'view_count', 'duration']
     list_filter = ['type']
     search_fields = ['title_en']
 
