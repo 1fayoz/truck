@@ -70,6 +70,8 @@ def upload_to(instance, filename):
     filename = f"{uuid4()}.{ext}"
     if instance.type == models.Uploader.TypeChoices.IMAGE:
         return os.path.join('uploads/images/', filename)
+    elif instance.type == models.Uploader.TypeChoices.AUDIO:
+        return os.path.join('uploads/audio/', filename)
     return os.path.join('uploads/videos/', filename)
 
 

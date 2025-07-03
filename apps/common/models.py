@@ -342,6 +342,7 @@ class Uploader(BaseModel):
     class TypeChoices(models.TextChoices):
         IMAGE = 'image', "Image"
         VIDEO = 'video', "Video"
+        AUDIO = 'audio', "Audio"
 
     type = models.CharField(max_length=10, choices=TypeChoices.choices)
     file = models.FileField(upload_to=upload_to)
