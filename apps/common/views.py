@@ -8,7 +8,7 @@ from apps.common import serializers
 
 
 class BannerViewSet(viewsets.ModelViewSet):
-    queryset = models.Banner.objects.filter(is_active=True, type='home')
+    queryset = models.Banner.objects.filter(is_active=True, type='home').order_by('id')
     http_method_names = ['get', 'post', 'patch']
 
     def get_serializer_class(self):
@@ -20,7 +20,7 @@ class BannerViewSet(viewsets.ModelViewSet):
 
 
 class ClubOfferViewSet(viewsets.ModelViewSet):
-    queryset = models.ClubOffer.objects.filter(is_active=True)
+    queryset = models.ClubOffer.objects.filter(is_active=True).order_by('id')
     serializer_class = serializers.ClubOfferSerializer
     http_method_names = ['get', 'post', 'patch']
 
@@ -50,13 +50,13 @@ class IndustryDistributionAPIView(views.APIView):
 
 
 class ExclusiveVideosListAPIView(viewsets.ModelViewSet):
-    queryset = models.VideoAndAudio.objects.filter(is_active=True, type='exclusive')
+    queryset = models.VideoAndAudio.objects.filter(is_active=True, type='exclusive').order_by('id')
     serializer_class = serializers.ExclusiveVideosSerializer
     http_method_names = ['get', 'post', 'patch']
 
 
 class PartnersModelViewSet(viewsets.ModelViewSet):
-    queryset = models.Partners.objects.filter(is_active=True)
+    queryset = models.Partners.objects.filter(is_active=True).order_by('id')
     serializer_class = serializers.PartnersSerializer
     http_method_names = ['get', 'post', 'patch']
 
@@ -69,7 +69,7 @@ class PartnersModelViewSet(viewsets.ModelViewSet):
 
 
 class FAQViewSet(viewsets.ModelViewSet):
-    queryset = models.FAQ.objects.filter(is_active=True)
+    queryset = models.FAQ.objects.filter(is_active=True).order_by('id')
     http_method_names = ['get', 'post', 'patch']
 
     def get_serializer_class(self):
@@ -82,7 +82,7 @@ class FAQViewSet(viewsets.ModelViewSet):
 
 class ClubMemberListAPIView(generics.ListCreateAPIView):
     queryset = models.ClubMember.objects.filter(is_active=True, type__in=['member', 'expert']).exclude(
-        degree__in=['president', 'director', 'assistant_director'])
+        degree__in=['president', 'director', 'assistant_director']).order_by('id')
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -91,7 +91,7 @@ class ClubMemberListAPIView(generics.ListCreateAPIView):
 
 
 class ClubMemberDetailRetrieveAPIView(generics.RetrieveUpdateAPIView):
-    queryset = models.ClubMember.objects.filter(is_active=True, type='member')
+    queryset = models.ClubMember.objects.filter(is_active=True, type='member').order_by('id')
     serializer_class = serializers.ClubMemberDetailSerializer
 
     def get_serializer_class(self):
@@ -101,7 +101,7 @@ class ClubMemberDetailRetrieveAPIView(generics.RetrieveUpdateAPIView):
 
 
 class TravelListAPIView(generics.ListCreateAPIView):
-    queryset = models.Travel.objects.filter(is_active=True)
+    queryset = models.Travel.objects.filter(is_active=True).order_by('id')
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['status']
 
@@ -112,7 +112,7 @@ class TravelListAPIView(generics.ListCreateAPIView):
 
 
 class TravelRetrieveAPIView(generics.RetrieveUpdateAPIView):
-    queryset = models.Travel.objects.filter(is_active=True)
+    queryset = models.Travel.objects.filter(is_active=True).order_by('id')
 
     def get_serializer_class(self):
         if self.request.method == 'PATCH' or self.request.method == 'PUT':
@@ -137,7 +137,7 @@ class TravelRetrieveAPIView(generics.RetrieveUpdateAPIView):
 
 
 class MembersSpeechListCreateAPIView(generics.ListCreateAPIView):
-    queryset = models.VideoAndAudio.objects.filter(is_active=True, type='member_speech')
+    queryset = models.VideoAndAudio.objects.filter(is_active=True, type='member_speech').order_by('id')
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -146,7 +146,7 @@ class MembersSpeechListCreateAPIView(generics.ListCreateAPIView):
 
 
 class NewsListCreateAPIView(generics.ListCreateAPIView):
-    queryset = models.News.objects.filter(is_active=True)
+    queryset = models.News.objects.filter(is_active=True).order_by('id')
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -155,7 +155,7 @@ class NewsListCreateAPIView(generics.ListCreateAPIView):
 
 
 class NewsRetrieveAPIView(generics.RetrieveAPIView):
-    queryset = models.News.objects.filter(is_active=True)
+    queryset = models.News.objects.filter(is_active=True).order_by('id')
     serializer_class = serializers.NewsSerializerDetail
 
     def retrieve(self, request, *args, **kwargs):
@@ -176,7 +176,7 @@ class NewsRetrieveAPIView(generics.RetrieveAPIView):
 
 
 class BusinessCourseListCreateAPIView(generics.ListCreateAPIView):
-    queryset = models.BusinessCourse.objects.filter(is_active=True)
+    queryset = models.BusinessCourse.objects.filter(is_active=True).order_by('id')
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -185,7 +185,7 @@ class BusinessCourseListCreateAPIView(generics.ListCreateAPIView):
 
 
 class BusinessCourseRetrieveAPIView(generics.RetrieveUpdateAPIView):
-    queryset = models.BusinessCourse.objects.filter(is_active=True)
+    queryset = models.BusinessCourse.objects.filter(is_active=True).order_by('id')
 
     def get_serializer_class(self):
         if self.request.method == 'PATCH':
@@ -210,12 +210,12 @@ class BusinessCourseRetrieveAPIView(generics.RetrieveUpdateAPIView):
 
 
 class ClubPresidentRetrieveAPIView(generics.RetrieveAPIView):
-    queryset = models.ClubMember.objects.filter(is_active=True, degree__in=['president', 'director', 'assistant_director'])
+    queryset = models.ClubMember.objects.filter(is_active=True, degree__in=['president', 'director', 'assistant_director']).order_by('id')
     serializer_class = serializers.ClubPresidentDetailSerializer
 
 
 class EventListAPIView(generics.ListCreateAPIView):
-    queryset = models.Events.objects.filter(is_active=True)
+    queryset = models.Events.objects.filter(is_active=True).order_by('id')
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['status', 'date']
 
@@ -226,7 +226,7 @@ class EventListAPIView(generics.ListCreateAPIView):
 
 
 class EventRetrieveAPIView(generics.RetrieveUpdateAPIView):
-    queryset = models.Events.objects.filter(is_active=True)
+    queryset = models.Events.objects.filter(is_active=True).order_by('id')
 
     def get_serializer_class(self):
         if self.request.method == 'PATCH':
@@ -235,7 +235,7 @@ class EventRetrieveAPIView(generics.RetrieveUpdateAPIView):
 
 
 class PodcastListCreateAPIView(generics.ListCreateAPIView):
-    queryset = models.VideoAndAudio.objects.filter(is_active=True, type__in=['video_podcast', 'audio_podcast'])
+    queryset = models.VideoAndAudio.objects.filter(is_active=True, type__in=['video_podcast', 'audio_podcast']).order_by('id')
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['type']
 
@@ -246,7 +246,7 @@ class PodcastListCreateAPIView(generics.ListCreateAPIView):
 
 
 class PodcastRetrieveAPIView(generics.RetrieveUpdateAPIView):
-    queryset = models.VideoAndAudio.objects.filter(is_active=True, type__in=['video_podcast', 'audio_podcast'])
+    queryset = models.VideoAndAudio.objects.filter(is_active=True, type__in=['video_podcast', 'audio_podcast']).order_by('id')
 
     def get_serializer_class(self):
         if self.request.method == 'PATCH':
@@ -271,7 +271,7 @@ class PodcastRetrieveAPIView(generics.RetrieveUpdateAPIView):
 
 
 class GalleryListCreateAPIView(generics.ListCreateAPIView):
-    queryset = models.Gallery.objects.filter(is_active=True)
+    queryset = models.Gallery.objects.filter(is_active=True).order_by('id')
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['type']
 
@@ -282,7 +282,7 @@ class GalleryListCreateAPIView(generics.ListCreateAPIView):
 
 
 class GalleryRetrieveAPIView(generics.RetrieveUpdateAPIView):
-    queryset = models.Gallery.objects.filter(is_active=True, type='picture')
+    queryset = models.Gallery.objects.filter(is_active=True, type='picture').order_by('id')
 
     def get_serializer_class(self):
         if self.request.method == 'PATCH':
@@ -307,7 +307,7 @@ class GalleryRetrieveAPIView(generics.RetrieveUpdateAPIView):
 
 
 class NationalValueListCreateAPIView(generics.ListCreateAPIView):
-    queryset = models.NationalValue.objects.filter(is_active=True)
+    queryset = models.NationalValue.objects.filter(is_active=True).order_by('id')
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -316,12 +316,12 @@ class NationalValueListCreateAPIView(generics.ListCreateAPIView):
 
 
 class NationalValueUpdateAPIView(generics.UpdateAPIView):
-    queryset = models.NationalValue.objects.filter(is_active=True)
+    queryset = models.NationalValue.objects.filter(is_active=True).order_by('id')
     serializer_class = serializers.NationalValueSerializerCreate
 
 
 class FileUploadView(generics.CreateAPIView):
-    queryset = models.Uploader.objects.filter(is_active=True)
+    queryset = models.Uploader.objects.filter(is_active=True).order_by('id')
     serializer_class = serializers.UploaderSerializer
 
 
@@ -338,7 +338,7 @@ class ContactFormView(generics.CreateAPIView):
 
 
 class GenericChoiceViewSet(viewsets.ModelViewSet):
-    queryset = models.GenericChoice.objects.filter(is_active=True)
+    queryset = models.GenericChoice.objects.filter(is_active=True).order_by('id')
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['type']
     http_method_names = ['get', 'post', 'patch']
@@ -352,7 +352,7 @@ class GenericChoiceViewSet(viewsets.ModelViewSet):
 
 
 class TravelCountryViewSet(viewsets.ModelViewSet):
-    queryset = models.TravelCountry.objects.filter(is_active=True)
+    queryset = models.TravelCountry.objects.filter(is_active=True).order_by('id')
     http_method_names = ['get', 'post', 'patch']
 
     def get_serializer_class(self):
@@ -364,7 +364,7 @@ class TravelCountryViewSet(viewsets.ModelViewSet):
 
 
 class IndustryViewSet(viewsets.ModelViewSet):
-    queryset = models.Industry.objects.filter(is_active=True)
+    queryset = models.Industry.objects.filter(is_active=True).order_by('id')
     http_method_names = ['get', 'post', 'patch']
 
     def get_serializer_class(self):
@@ -376,7 +376,7 @@ class IndustryViewSet(viewsets.ModelViewSet):
 
 
 class SpeakerViewSet(viewsets.ModelViewSet):
-    queryset = models.Speaker.objects.filter(is_active=True)
+    queryset = models.Speaker.objects.filter(is_active=True).order_by('id')
     http_method_names = ['get', 'post', 'patch']
 
     def get_serializer_class(self):
@@ -405,14 +405,14 @@ class SearchAPIView(views.APIView):
 
 class ClubPresidentListApiView(generics.ListAPIView):
     queryset = models.ClubMember.objects.filter(is_active=True,
-                                                degree__in=['president', 'director', 'assistant_director'])
+                                                degree__in=['president', 'director', 'assistant_director']).order_by('id')
     serializer_class = serializers.ClubPresidentListSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['degree']
 
 
 class HomeStatIconsViewSet(viewsets.ModelViewSet):
-    queryset = models.HomeStatIcons.objects.all()
+    queryset = models.HomeStatIcons.objects.all().order_by('id')
     serializer_class = serializers.HomeStatIconsSerializer
     http_method_names = ['get', 'post', 'patch']
 
