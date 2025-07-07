@@ -126,6 +126,9 @@ class TravelRetrieveAPIView(generics.RetrieveUpdateAPIView):
 
         if not cache.get(key):
             cache.set(key, True, timeout=86400)
+            if instance.view_count is None:
+                instance.view_count = 0
+                instance.save(update_fields=["view_count"])
             instance.view_count += 1
             instance.save(update_fields=["view_count"])
 
@@ -162,6 +165,9 @@ class NewsRetrieveAPIView(generics.RetrieveAPIView):
 
         if not cache.get(key):
             cache.set(key, True, timeout=86400)
+            if instance.view_count is None:
+                instance.view_count = 0
+                instance.save(update_fields=["view_count"])
             instance.view_count += 1
             instance.save(update_fields=["view_count"])
 
@@ -193,6 +199,9 @@ class BusinessCourseRetrieveAPIView(generics.RetrieveUpdateAPIView):
 
         if not cache.get(key):
             cache.set(key, True, timeout=86400)
+            if instance.view_count is None:
+                instance.view_count = 0
+                instance.save(update_fields=["view_count"])
             instance.view_count += 1
             instance.save(update_fields=["view_count"])
 
@@ -251,6 +260,9 @@ class PodcastRetrieveAPIView(generics.RetrieveUpdateAPIView):
 
         if not cache.get(key):
             cache.set(key, True, timeout=86400)
+            if instance.view_count is None:
+                instance.view_count = 0
+                instance.save(update_fields=["view_count"])
             instance.view_count += 1
             instance.save(update_fields=["view_count"])
 
@@ -284,6 +296,9 @@ class GalleryRetrieveAPIView(generics.RetrieveUpdateAPIView):
 
         if not cache.get(key):
             cache.set(key, True, timeout=86400)
+            if instance.view_count is None:
+                instance.view_count = 0
+                instance.save(update_fields=["view_count"])
             instance.view_count += 1
             instance.save(update_fields=["view_count"])
 
