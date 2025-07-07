@@ -310,10 +310,10 @@ class ContactForm(BaseModel):
         related_name='employee_count_choices'
     )
 
-    telegram = models.CharField(max_length=255, null=True, blank=True)
-    linkedin = models.CharField(max_length=255, null=True, blank=True)
-    instagram = models.CharField(max_length=255, null=True, blank=True)
-    facebook = models.CharField(max_length=255, null=True, blank=True)
+    telegram = models.URLField(max_length=255, null=True, blank=True)
+    linkedin = models.URLField(max_length=255, null=True, blank=True)
+    instagram = models.URLField(max_length=255, null=True, blank=True)
+    facebook = models.URLField(max_length=255, null=True, blank=True)
 
 
 class Partners(BaseModel, NameTranslation):

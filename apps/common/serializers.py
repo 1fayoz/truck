@@ -6,6 +6,7 @@ from django.utils.timezone import now
 from rest_framework import serializers
 
 from apps.common import models, utils
+from core.settings.base import TELEGRAM_BOT, GROUP_ID
 
 
 class BannerSerializer(serializers.ModelSerializer):
@@ -1426,14 +1427,16 @@ class ContactFormSerializer(serializers.ModelSerializer):
             f"👤 Ism: {instance.full_name}\n"
             f"📞 Telefon: {instance.phone}\n"
             f"🏢 Kompaniya: {instance.company}\n"
-            f"💰 Daromad: {instance.annual_revenue}\n"
-            f"📦 Loyihalar: {instance.project_count}\n"
-            f"👥 Xodimlar: {instance.employee_count}\n"
-            f"📱 Telegram: {instance.telegram}\n"
-            f"📷 Instagram: {instance.instagram}"
+            f"💰 Daromad: {instance.annual_revenue or 0}\n"
+            f"📦 Loyihalar: {instance.project_count or 0}\n"
+            f"👥 Xodimlar: {instance.employee_count or 0}\n"
+            f"📱 Telegram: {instance.telegram or '➖'}\n"
+            f"📷 Instagram: {instance.instagram or '➖'}"
+            f"♦️ LinkedIn: {instance.linkedin or '➖'}\n"
+            f"Facebook: {instance.facebook or '➖'}"
         )
 
-        utils.send_telegram_message("7126526134:AAGW-MSkHGk7Kr0tXvpOPs4HhU0JmwEBxL0", "-1002685998409", message)
+        utils.send_telegram_message(TELEGRAM_BOT, GROUP_ID, message)
 
         return instance
 
