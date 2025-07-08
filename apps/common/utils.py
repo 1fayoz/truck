@@ -3,6 +3,7 @@ from uuid import uuid4
 import requests
 from django.apps import apps
 from django.db.models import Q
+from rest_framework.pagination import PageNumberPagination
 
 from apps.common import models
 
@@ -256,3 +257,12 @@ def get_client_ip(request):
     else:
         ip = request.META.get("REMOTE_ADDR")
     return ip
+
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 500
+    page_query_param = 'page_size'
+
+
