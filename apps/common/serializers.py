@@ -1256,7 +1256,7 @@ class GallerySerializerUpdate(serializers.ModelSerializer):
         if images_data is not None:
             instance.images.all().delete()
             for image_data in images_data:
-                models.Images.objects.create(gallery=instance, **image_data)
+                models.Images.objects.create(type='gallery', gallery=instance, **image_data)
 
         return instance
 
