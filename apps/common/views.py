@@ -282,7 +282,7 @@ class GalleryListCreateAPIView(generics.ListCreateAPIView):
 
 
 class GalleryRetrieveAPIView(generics.RetrieveUpdateAPIView):
-    queryset = models.Gallery.objects.filter(is_active=True, type='picture').order_by('id')
+    queryset = models.Gallery.objects.filter(is_active=True, type__in=['picture', 'video']).order_by('id')
 
     def get_serializer_class(self):
         if self.request.method == 'PATCH':
