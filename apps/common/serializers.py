@@ -609,7 +609,7 @@ class MembersSpeechSerializer(serializers.ModelSerializer):
         model = models.VideoAndAudio
         fields = (
             'id', 'url', 'full_name', 'position',
-            'company',
+            'company', 'extra_image'
         )
 
     def get_full_name(self, obj):
@@ -633,7 +633,7 @@ class MembersSpeechSerializerCreate(serializers.ModelSerializer):
 
     class Meta:
         model = models.VideoAndAudio
-        fields = ('id', 'url', 'members')
+        fields = ('id', 'url', 'members', 'extra_image')
 
     def create(self, validated_data):
         return models.VideoAndAudio.objects.create(type='member_speech', **validated_data)
