@@ -1349,7 +1349,10 @@ class UploaderSerializer(serializers.ModelSerializer):
     def get_file_url(self, obj):
         request = self.context.get('request')
         if obj.file and request:
-            return request.build_absolute_uri(obj.file.url)
+            url = request.build_absolute_uri(obj.file.url)
+            if request.is_secure():
+                return url.replace("http://", "https://")
+            return url
         return None
 
 

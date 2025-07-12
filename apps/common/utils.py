@@ -66,7 +66,7 @@ def send_telegram_message(token: str, chat_id: str, message: str):
     return response
 
 
-def upload_to(instance, filename):
+def     upload_to(instance, filename):
     ext = filename.split('.')[-1]
     filename = f"{uuid4()}.{ext}"
     if instance.type == models.Uploader.TypeChoices.IMAGE:
