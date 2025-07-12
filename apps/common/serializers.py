@@ -1350,9 +1350,7 @@ class UploaderSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if obj.file and request:
             url = request.build_absolute_uri(obj.file.url)
-            if request.is_secure():
-                return url.replace("http://", "https://")
-            return url
+            return url.replace("http://", "https://")
         return None
 
 
