@@ -64,7 +64,7 @@ REST_FRAMEWORK = {
         "rest_framework.filters.SearchFilter",
     ),
     "DEFAULT_PAGINATION_CLASS": "apps.common.utils.StandardResultsSetPagination", # "rest_framework.pagination.LimitOffsetPagination",
-    "PAGE_SIZE": 6,
+    "PAGE_SIZE": 10,
 }
 
 INSTALLED_APPS = DJANGO_APPS + CUSTOM_APPS + THIRD_PARTY_APPS
