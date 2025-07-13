@@ -3,9 +3,10 @@ from uuid import uuid4
 import requests
 from django.apps import apps
 from django.db.models import Q
+from django.utils.timezone import now
 from rest_framework.pagination import PageNumberPagination
-
 from apps.common import models
+from apps.common.models import Events
 
 
 def get_translation(obj, attr, request):
@@ -265,4 +266,7 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 500
     page_query_param = 'page'
 
+
+def update_event_statuses():
+    Events.objects.filter(date__lt=now(), status=Events.EventType.PENDING).update(status=Events.EventType.COMPLETED)
 

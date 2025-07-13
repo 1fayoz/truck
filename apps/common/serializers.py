@@ -6,6 +6,7 @@ from django.utils.timezone import now
 from rest_framework import serializers
 
 from apps.common import models, utils
+from apps.common.utils import update_event_statuses
 from core.settings.base import TELEGRAM_BOT, GROUP_ID
 
 

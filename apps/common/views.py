@@ -1,3 +1,5 @@
+import asyncio
+
 from django.core.cache import cache
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, views, generics, status
@@ -5,6 +7,7 @@ from rest_framework.response import Response
 
 from apps.common import models, utils
 from apps.common import serializers
+from apps.common.utils import update_event_statuses
 
 
 class BannerViewSet(viewsets.ModelViewSet):
@@ -215,7 +218,6 @@ class ClubPresidentRetrieveAPIView(generics.RetrieveAPIView):
 
 
 class EventListAPIView(generics.ListCreateAPIView):
-    queryset = models.Events.objects.filter(is_active=True).order_by('id')
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['status', 'date']
 
@@ -224,14 +226,21 @@ class EventListAPIView(generics.ListCreateAPIView):
             return serializers.EventSerializerCreate
         return serializers.EventSerializer
 
+    def get_queryset(self):
+        update_event_statuses()
+        return models.Events.objects.filter(is_active=True).order_by('id')
+
 
 class EventRetrieveAPIView(generics.RetrieveUpdateAPIView):
-    queryset = models.Events.objects.filter(is_active=True).order_by('id')
 
     def get_serializer_class(self):
         if self.request.method == 'PATCH':
             return serializers.EventSerializerCreate
         return serializers.EventDetailSerializer
+
+    def get_queryset(self):
+        update_event_statuses()
+        return models.Events.objects.filter(is_active=True).order_by('id')
 
 
 class PodcastListCreateAPIView(generics.ListCreateAPIView):
