@@ -41,6 +41,7 @@ class NewsSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'name',
+            'image'
             'short_des',
             'description'
         )
