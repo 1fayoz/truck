@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.common.models import User, Service, Docs, News, Application
+from apps.common.models import User, Service, Docs, News, Application, Employee
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -57,4 +57,15 @@ class ApplicationSerializer(serializers.ModelSerializer):
             'address',
             'text',
             'file'
+        )
+
+class EmployeeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Employee
+        fields = (
+            'image',
+            'full_name',
+            'email',
+            'work_time_from',
+            'work_time_to',
         )

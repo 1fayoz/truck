@@ -130,3 +130,19 @@ class Application(BaseModel):
         null=True,
         blank=True,
     )
+
+class Employee(BaseModel):
+    image = models.ImageField(
+        upload_to='employee',
+    )
+    full_name = models.CharField(
+        max_length=100,
+    )
+    degree = models.CharField(
+        max_length=100,
+    )
+    email = models.EmailField(
+        max_length=100,
+    )
+    work_time_from = models.TimeField()
+    work_time_to = models.TimeField()

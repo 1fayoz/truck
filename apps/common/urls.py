@@ -10,6 +10,7 @@ urlpatterns = [
     path('docs', views.DocsView.as_view()),
     path('news', views.NewsListView.as_view()),
     path('application', ApplicationListView.as_view()),
+    path('employee', views.EmployeeCreateList.as_view()),
 
 ]
 

@@ -1,9 +1,11 @@
+import datetime
+
 from django.contrib import admin
 from django.utils.html import format_html
 from django.db import models
 from django.forms.widgets import Textarea
 
-from .models import User, Service, Docs, News, Application
+from .models import User, Service, Docs, News, Application, Employee
 
 # ---------- Umumiy qulayliklar ----------
 admin.site.site_header = "Admin Panel"
@@ -240,3 +242,127 @@ class ApplicationAdmin(admin.ModelAdmin):
             "fields": ("text", "file", "file_preview")
         }),
     )
+
+# ---- Forma: vaqtlar mantiqiyligini tekshirish
+class EmployeeAdminForm(forms.ModelForm):
+    class Meta:
+        model = Employee
+        fields = "__all__"
+
+    def clean(self):
+        cleaned = super().clean()
+        t_from = cleaned.get("work_time_from")
+        t_to = cleaned.get("work_time_to")
+        # Agar tungi smena kerak bo'lmasa, oddiy tekshirish:
+        if t_from and t_to and t_from >= t_to:
+            raise forms.ValidationError(
+                _("'work_time_from' 'work_time_to'dan kichik bo‘lishi kerak.")
+            )
+        return cleaned
+
+
+# ---- ListFilter: ish boshlanish vaqt oralig'i
+class ShiftFilter(admin.SimpleListFilter):
+    title = "Smena (boshlanishi)"
+    parameter_name = "shift"
+
+    def lookups(self, request, model_admin):
+        return [
+            ("morning", "Ertalab (05:00–12:00)"),
+            ("afternoon", "Kunduzi (12:00–17:00)"),
+            ("evening", "Kechqurun (17:00–22:00)"),
+            ("night", "Tun (22:00–05:00)"),
+        ]
+
+    def queryset(self, request, qs):
+        val = self.value()
+        if not val:
+            return qs
+        time = datetime.time
+        if val == "morning":
+            return qs.filter(work_time_from__gte=time(5, 0), work_time_from__lt=time(12, 0))
+        if val == "afternoon":
+            return qs.filter(work_time_from__gte=time(12, 0), work_time_from__lt=time(17, 0))
+        if val == "evening":
+            return qs.filter(work_time_from__gte=time(17, 0), work_time_from__lt=time(22, 0))
+        if val == "night":
+            # 22:00–24:00 yoki 00:00–05:00
+            return qs.filter(
+                # Django OR uchun | ishlatiladi
+                # (A) 22:00–23:59
+                # (B) 00:00–05:00
+            ).filter(
+                # Trik: two separate filters with OR
+            ) | qs.filter(work_time_from__gte=time(22, 0)) | qs.filter(work_time_from__lt=time(5, 0))
+        return qs
+
+
+@admin.register(Employee)
+class EmployeeAdmin(admin.ModelAdmin):
+    form = EmployeeAdminForm
+
+    # --- Ko‘rinishlar
+    list_display = (
+        "full_name",
+        "degree",
+        "email",
+        "work_time_range",
+        "total_hours",
+    )
+    search_fields = ("full_name", "degree", "email")
+    list_filter = (ShiftFilter, )  # agar BaseModel’da created_at bo‘lsa: ("created_at", ShiftFilter)
+    ordering = ("full_name",)
+    list_per_page = 25
+
+    # --- Foydali funksiyalar
+    def work_time_range(self, obj):
+        return f"{obj.work_time_from.strftime('%H:%M')} — {obj.work_time_to.strftime('%H:%M')}"
+    work_time_range.short_description = "Ish vaqti"
+
+    def total_hours(self, obj):
+        """
+        Oddiy (kun ichidagi) smena uchun soat hisoblash.
+        Agar sizga "tungi smena (kechasi kesib o'tish)" kerak bo‘lsa,
+        pastdagi kommentni oching.
+        """
+        dt = datetime.datetime
+        today = datetime.date.today()
+        start = dt.combine(today, obj.work_time_from)
+        end = dt.combine(today, obj.work_time_to)
+        # Tungi smenani qo‘llash uchun quyidagisini ishlating:
+        # if end <= start:
+        #     end += datetime.timedelta(days=1)
+        diff = end - start
+        hours = diff.total_seconds() / 3600
+        # 1 xonali aniqlik bilan ko‘rsatamiz
+        return f"{hours:.1f} soat"
+    total_hours.short_description = "Umumiy soat"
+
+    # --- Fieldsetlar
+    fieldsets = (
+        ("Xodim ma’lumotlari", {
+            "fields": ("full_name", "degree", "email")
+        }),
+        ("Ish vaqti", {
+            "fields": ("work_time_from", "work_time_to")
+        }),
+    )
+
+    # --- Tezkor actions
+    @admin.action(description="Ertalabki smena (09:00–18:00) ni qo‘yish")
+    def set_day_shift(self, request, queryset):
+        updated = queryset.update(
+            work_time_from=datetime.time(9, 0),
+            work_time_to=datetime.time(18, 0),
+        )
+        self.message_user(request, f"{updated} ta xodimga qo‘llandi.")
+
+    @admin.action(description="Qisqa smena (10:00–16:00) ni qo‘yish")
+    def set_short_shift(self, request, queryset):
+        updated = queryset.update(
+            work_time_from=datetime.time(10, 0),
+            work_time_to=datetime.time(16, 0),
+        )
+        self.message_user(request, f"{updated} ta xodimga qo‘llandi.")
+
+    actions = ["set_day_shift", "set_short_shift"]
