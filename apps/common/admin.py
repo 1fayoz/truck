@@ -205,6 +205,7 @@ class NewsAdmin(admin.ModelAdmin):
 
 @admin.register(Application)
 class ApplicationAdmin(admin.ModelAdmin):
+
     def file_link(self, obj):
         if obj.file:
             try:
@@ -251,34 +252,62 @@ class ApplicationAdmin(admin.ModelAdmin):
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
     list_display = (
+        "image_thumb",
         "full_name",
         "degree",
         "email",
         "work_time_range",
         "total_hours",
-        'image'
     )
     search_fields = ("full_name", "degree", "email")
     ordering = ("full_name",)
     list_per_page = 25
+    readonly_fields = ("image_preview_field",)
 
+    @staticmethod
+    def image_preview(obj, field_name, size=120):
+        f = getattr(obj, field_name, None)
+        if not f:
+            return "—"
+        try:
+            url = f.url
+        except Exception:
+            return "—"
+        return format_html(
+            '<img src="{}" style="height:{}px;width:{}px;object-fit:cover;'
+            'border-radius:8px;box-shadow:0 0 4px rgba(0,0,0,0.2);" />',
+            url, size, size
+        )
+
+    # --- Rasm prevyu
+    def image_thumb(self, obj):
+        return self.image_preview(obj, "image", size=48)
+    image_thumb.short_description = "Rasm"
+
+    def image_preview_field(self, obj):
+        return self.image_preview(obj, "image", size=160)
+    image_preview_field.short_description = "Rasm (ko‘rish)"
+
+    # --- Vaqtlar
     def work_time_range(self, obj):
         return f"{obj.work_time_from.strftime('%H:%M')} — {obj.work_time_to.strftime('%H:%M')}"
     work_time_range.short_description = "Ish vaqti"
 
     def total_hours(self, obj):
-        dt = datetime.datetime
         today = datetime.date.today()
-        start = dt.combine(today, obj.work_time_from)
-        end = dt.combine(today, obj.work_time_to)
+        start = datetime.datetime.combine(today, obj.work_time_from)
+        end = datetime.datetime.combine(today, obj.work_time_to)
+        if end <= start:
+            end += datetime.timedelta(days=1)  # agar tunda kesib o‘tsa
         diff = end - start
         hours = diff.total_seconds() / 3600
         return f"{hours:.1f} soat"
     total_hours.short_description = "Umumiy soat"
 
+    # --- Fieldset
     fieldsets = (
         ("Xodim ma’lumotlari", {
-            "fields": ("full_name", "degree", "email")
+            "fields": ("image", "image_preview_field", "full_name", "degree", "email")
         }),
         ("Ish vaqti", {
             "fields": ("work_time_from", "work_time_to")
