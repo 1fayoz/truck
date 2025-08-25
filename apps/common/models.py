@@ -53,6 +53,13 @@ class Service(BaseModel):
 
     icon = models.ImageField(
         upload_to='icons',
+        null=True,
+        blank=True,
+    )
+    icon_name = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
     )
     name = models.CharField(
         max_length=100,
