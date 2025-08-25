@@ -2,7 +2,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import ListCreateAPIView
 
 from apps.common import serializers
-from apps.common.models import User, Service, Docs, News
+from apps.common.models import User, Service, Docs, News, Application
 
 
 class UserLogin(ListCreateAPIView):
@@ -23,5 +23,9 @@ class DocsView(ListCreateAPIView):
 class NewsListView(ListCreateAPIView):
     queryset = News.objects.all()
     serializer_class = serializers.NewsSerializer
+
+class ApplicationListView(ListCreateAPIView):
+    queryset = Application.objects.all()
+    serializer_class = serializers.ApplicationSerializer
 
 

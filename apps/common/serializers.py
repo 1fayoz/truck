@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.common.models import User, Service, Docs, News
+from apps.common.models import User, Service, Docs, News, Application
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -44,4 +44,18 @@ class NewsSerializer(serializers.ModelSerializer):
             'image',
             'short_des',
             'description'
+        )
+
+class ApplicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Application
+        fields = (
+            'id',
+            'full_name',
+            'phone',
+            'email',
+            'address',
+            'text',
+            'file'
+
         )

@@ -106,3 +106,27 @@ class News(BaseModel):
     )
     description = models.TextField(
     )
+
+
+class Application(BaseModel):
+    full_name = models.CharField(
+        max_length=100,
+    )
+    phone = models.CharField(
+        max_length=100,
+    )
+    email = models.EmailField(
+        max_length=100,
+    )
+    address = models.CharField(
+        max_length=100,
+    )
+    text = models.TextField(
+        null=True,
+        blank=True,
+    )
+    file = models.FileField(
+        upload_to='files',
+        null=True,
+        blank=True,
+    )

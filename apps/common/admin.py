@@ -3,8 +3,7 @@ from django.utils.html import format_html
 from django.db import models
 from django.forms.widgets import Textarea
 
-from .models import User, Service, Docs, News
-
+from .models import User, Service, Docs, News, Application
 
 # ---------- Umumiy qulayliklar ----------
 admin.site.site_header = "Admin Panel"
@@ -197,4 +196,47 @@ class NewsAdmin(admin.ModelAdmin):
         ("Yangilik", {"fields": ("name", "short_des")}),
         ("Kontent", {"fields": ("description",)}),
         ("Rasm", {"fields": ("image", "image_preview")}),
+    )
+
+
+@admin.register(Application)
+class ApplicationAdmin(admin.ModelAdmin):
+    def file_link(self, obj):
+        if obj.file:
+            try:
+                return format_html('<a href="{}" target="_blank">Faylni ochish</a>', obj.file.url)
+            except Exception:
+                return "—"
+        return "—"
+    file_link.short_description = "Fayl"
+
+    list_display = ("full_name", "phone", "email", "address", "short_text", "file_link")
+    search_fields = ("full_name", "phone", "email", "address", "text")
+    list_filter = ("created_at",)  # BaseModel’da `created_at` bo‘lsa
+    ordering = ("-id",)
+    list_per_page = 25
+    readonly_fields = ("file_preview",)
+
+    def short_text(self, obj):
+        if not obj.text:
+            return "—"
+        return (obj.text[:60] + "…") if len(obj.text) > 60 else obj.text
+    short_text.short_description = "Matn"
+
+    def file_preview(self, obj):
+        if obj.file:
+            try:
+                url = obj.file.url
+            except Exception:
+                return "—"
+            return format_html('<a href="{}" target="_blank">📎 Faylni ko‘rish</a>', url)
+        return "—"
+
+    fieldsets = (
+        ("Ariza ma’lumotlari", {
+            "fields": ("full_name", "phone", "email", "address")
+        }),
+        ("Qo‘shimcha", {
+            "fields": ("text", "file", "file_preview")
+        }),
     )
