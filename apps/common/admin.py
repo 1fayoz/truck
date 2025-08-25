@@ -250,13 +250,13 @@ class ApplicationAdmin(admin.ModelAdmin):
 
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
-    # --- Ko‘rinishlar
     list_display = (
         "full_name",
         "degree",
         "email",
         "work_time_range",
         "total_hours",
+        'image'
     )
     search_fields = ("full_name", "degree", "email")
     ordering = ("full_name",)
