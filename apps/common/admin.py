@@ -1,216 +1,198 @@
 from django.contrib import admin
-from .models import (
-    Industry, ClubMember, Autobiography, SocialLink, Metric, ClubOffer, Banner, Speaker, VideoAndAudio,
-    Travel, Tag, News, Images, BusinessCourse, CourseInfo, NationalValue, Events, EventAgenda,
-    Gallery, GenericChoice, ContactForm, TravelCountry, Company, EventSpeaker, PodcastSpeaker, HomeStatIcons, Uploader
-)
-
-# 🔹 Helper for image/icon preview
 from django.utils.html import format_html
+from django.db import models
+from django.forms.widgets import Textarea
+
+from .models import User, Service, Docs, News
 
 
-def image_preview(obj):
-    if obj.image:
-        return format_html('<img src="{}" width="60" style="object-fit:contain;" />', obj.image)
-    return "-"
+# ---------- Umumiy qulayliklar ----------
+admin.site.site_header = "Admin Panel"
+admin.site.site_title = "Admin"
+admin.site.index_title = "Boshqaruv"
+admin.site.enable_nav_sidebar = True  # chapdagi filter paneli
+
+TEXTAREA_OVERRIDES = {
+    models.TextField: {'widget': Textarea(attrs={'rows': 4, 'style': 'width: 95%;'})}
+}
 
 
-image_preview.short_description = 'Preview'
+# ---------- Custom ListFilterlar ----------
+class RatingRangeFilter(admin.SimpleListFilter):
+    title = "Reyting (oralig‘i)"
+    parameter_name = "rating_range"
+
+    def lookups(self, request, model_admin):
+        return [
+            ("lt2", "0 — 2"),
+            ("2to4", "2 — 4"),
+            ("gte4", "4 — 5"),
+        ]
+
+    def queryset(self, request, queryset):
+        val = self.value()
+        if val == "lt2":
+            return queryset.filter(rating__lt=2)
+        if val == "2to4":
+            return queryset.filter(rating__gte=2, rating__lt=4)
+        if val == "gte4":
+            return queryset.filter(rating__gte=4)
+        return queryset
 
 
-def icon_preview(obj):
-    if obj.icon:
-        return format_html('<img src="{}" width="40" style="object-fit:contain;" />', obj.icon)
-    return "-"
+class TransCountFilter(admin.SimpleListFilter):
+    title = "Transaksiya soni"
+    parameter_name = "trans_count_range"
+
+    def lookups(self, request, model_admin):
+        return [
+            ("zero", "0"),
+            ("1to10", "1 — 10"),
+            ("gt10", "> 10"),
+        ]
+
+    def queryset(self, request, queryset):
+        val = self.value()
+        if val == "zero":
+            return queryset.filter(trans_count=0)
+        if val == "1to10":
+            return queryset.filter(trans_count__gte=1, trans_count__lte=10)
+        if val == "gt10":
+            return queryset.filter(trans_count__gt=10)
+        return queryset
 
 
-icon_preview.short_description = 'Icon'
+# ---------- Helper: rasmlar preview ----------
+def image_preview(obj, field_name, size=48):
+    f = getattr(obj, field_name, None)
+    if not f:
+        return "—"
+    try:
+        url = f.url
+    except Exception:
+        return "—"
+    return format_html(
+        '<img src="{}" alt="{}" style="height:{}px;width:{}px;object-fit:cover;border-radius:6px;" />',
+        url, getattr(obj, "name", "img"), size, size
+    )
 
 
-# 🔹 Inline classes
-class AutobiographyInline(admin.TabularInline):
-    model = Autobiography
-    extra = 0
+# ---------- User ----------
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display = (
+        "full_name", "company", "inn", "country", "phone",
+        "trans_count", "rating",
+    )
+    list_filter = (
+        "country",
+        RatingRangeFilter,
+        TransCountFilter,
+        # Agar BaseModel’da created_at bo‘lsa, quyidagini oching:
+        # ("created_at",)
+    )
+    search_fields = ("full_name", "company", "inn", "phone")
+    ordering = ("-rating", "full_name")
+    list_per_page = 25
+    formfield_overrides = TEXTAREA_OVERRIDES
+    # Tez tahrirlash uchun:
+    list_editable = ("rating", )
+    # Detal sahifada maydon tartibi:
+    fieldsets = (
+        ("Asosiy ma’lumot", {
+            "fields": ("full_name", "company", "inn", "phone", "country")
+        }),
+        ("Statistika", {
+            "fields": ("trans_count", "rating"),
+        }),
+    )
 
 
-class SocialLinkInline(admin.TabularInline):
-    model = SocialLink
-    extra = 0
+# ---------- Service ----------
+@admin.register(Service)
+class ServiceAdmin(admin.ModelAdmin):
+    def icon_thumb(self, obj):
+        return image_preview(obj, "icon", size=36)
+    icon_thumb.short_description = "Icon"
+
+    list_display = ("icon_thumb", "name", "status")
+    list_filter = ("status",)
+    search_fields = ("name", "des")
+    ordering = ("status", "name")
+    list_editable = ("status",)
+    list_per_page = 25
+    formfield_overrides = TEXTAREA_OVERRIDES
+    readonly_fields = ("icon_preview",)
+
+    def icon_preview(self, obj):
+        return image_preview(obj, "icon", size=96)
+
+    fieldsets = (
+        ("Xizmat", {"fields": ("name", "status")}),
+        ("Ikon", {"fields": ("icon", "icon_preview")}),
+        ("Tavsif", {"fields": ("des",)}),
+    )
 
 
-class MetricInline(admin.TabularInline):
-    model = Metric
-    extra = 0
+# ---------- Docs ----------
+@admin.register(Docs)
+class DocsAdmin(admin.ModelAdmin):
+    def file_link(self, obj):
+        f = getattr(obj, "icon", None)
+        if not f:
+            return "—"
+        try:
+            url = f.url
+        except Exception:
+            return "—"
+        return format_html('<a href="{}" target="_blank">Yuklab olish</a>', url)
+    file_link.short_description = "Fayl"
+
+    list_display = ("name", "size", "file_link")
+    search_fields = ("name",)
+    ordering = ("name",)
+    list_per_page = 25
+
+    # Fayl o‘lchamini qayta hisoblash (ixtiyoriy action)
+    @admin.action(description="Fayl hajmini (bayt) `size` ga yozish")
+    def recalc_size(self, request, queryset):
+        updated = 0
+        for obj in queryset:
+            f = getattr(obj, "icon", None)
+            try:
+                obj.size = str(f.size)  # baytda
+                obj.save(update_fields=["size"])
+                updated += 1
+            except Exception:
+                pass
+        self.message_user(request, f"Yangilandi: {updated} ta obyekt.")
+    actions = ["recalc_size"]
 
 
-# 🔹 Main Admins
-@admin.register(Industry)
-class IndustryAdmin(admin.ModelAdmin):
-    list_display = ['name_en', icon_preview]
-    search_fields = ['name_en', 'name_uz', 'name_ru']
-
-
-@admin.register(ClubMember)
-class ClubMemberAdmin(admin.ModelAdmin):
-    list_display = ['name_en', 'age', 'experience', 'type', 'degree', 'industry']
-    list_filter = ['type', 'degree', 'industry']
-    search_fields = ['name_en', 'name_uz', 'name_ru', 'company_en']
-    inlines = [AutobiographyInline, SocialLinkInline, MetricInline]
-
-
-@admin.register(Autobiography)
-class AutobiographyAdmin(admin.ModelAdmin):
-    list_display = ['year', 'member']
-    search_fields = ['year', 'member__name_en']
-
-
-@admin.register(SocialLink)
-class SocialLinkAdmin(admin.ModelAdmin):
-    list_display = ['name_en', 'url', 'member']
-    search_fields = ['name_en', 'url']
-
-
-@admin.register(Metric)
-class MetricAdmin(admin.ModelAdmin):
-    list_display = ['member', 'type', 'revenue', 'employee_count', 'project_count']
-    list_filter = ['type']
-    search_fields = ['member__name_en']
-
-
-@admin.register(ClubOffer)
-class ClubOfferAdmin(admin.ModelAdmin):
-    list_display = ['title_en', icon_preview, 'link']
-    search_fields = ['title_en']
-
-
-@admin.register(Banner)
-class BannerAdmin(admin.ModelAdmin):
-    list_display = ['title_en', 'type', 'url']
-    list_filter = ['type']
-    search_fields = ['title_en']
-
-
-@admin.register(Speaker)
-class SpeakerAdmin(admin.ModelAdmin):
-    list_display = ['name_en', image_preview]
-    search_fields = ['name_en']
-
-
-@admin.register(VideoAndAudio)
-class VideoAndAudioAdmin(admin.ModelAdmin):
-    list_display = ['id', 'title_en', 'type', 'view_count', 'duration']
-    list_filter = ['type']
-    search_fields = ['title_en']
-
-
-@admin.register(Travel)
-class TravelAdmin(admin.ModelAdmin):
-    list_display = ['country', 'status', 'view_count']
-    list_filter = ['status']
-    search_fields = ['title_en']
-
-
-@admin.register(TravelCountry)
-class TravelCountryAdmin(admin.ModelAdmin):
-    list_display = ['name_uz']
-
-
-@admin.register(EventSpeaker)
-class TravelCountryAdmin(admin.ModelAdmin):
-    list_display = ['speaker']
-
-
-@admin.register(PodcastSpeaker)
-class TravelCountryAdmin(admin.ModelAdmin):
-    list_display = ['speaker']
-
-
-@admin.register(Company)
-class TravelCountryAdmin(admin.ModelAdmin):
-    list_display = ['name_uz']
-
-
-@admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
-    list_display = ['name']
-    search_fields = ['name']
-
-
+# ---------- News ----------
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
-    list_display = ['title_en', 'view_count']
-    search_fields = ['title_en']
-    filter_horizontal = ['tags']
+    def image_thumb(self, obj):
+        return image_preview(obj, "image", size=56)
+    image_thumb.short_description = "Rasm"
 
+    list_display = ("image_thumb", "name", "short_des_trunc")
+    search_fields = ("name", "short_des", "description")
+    ordering = ("-id",)
+    list_per_page = 25
+    formfield_overrides = TEXTAREA_OVERRIDES
+    readonly_fields = ("image_preview",)
 
-@admin.register(Images)
-class ImagesAdmin(admin.ModelAdmin):
-    list_display = ['type', image_preview, 'is_main', 'travel', 'news', 'gallery']
-    list_filter = ['type', 'is_main']
+    def image_preview(self, obj):
+        return image_preview(obj, "image", size=160)
 
+    def short_des_trunc(self, obj):
+        txt = (obj.short_des or "").strip()
+        return (txt[:80] + "…") if len(txt) > 80 else txt
+    short_des_trunc.short_description = "Qisqa tavsif"
 
-@admin.register(BusinessCourse)
-class BusinessCourseAdmin(admin.ModelAdmin):
-    list_display = ['title_en', 'view_count', 'speaker', image_preview]
-    search_fields = ['title_en']
-    autocomplete_fields = ['speaker']
-
-
-@admin.register(CourseInfo)
-class CourseInfoAdmin(admin.ModelAdmin):
-    list_display = ['title_en', 'type', 'module_number', icon_preview]
-    list_filter = ['type']
-    search_fields = ['title_en']
-    autocomplete_fields = ['business_course']
-
-
-@admin.register(NationalValue)
-class NationalValueAdmin(admin.ModelAdmin):
-    list_display = ['title_en', icon_preview]
-    search_fields = ['title_en']
-
-
-@admin.register(Events)
-class EventsAdmin(admin.ModelAdmin):
-    list_display = ['title_en', 'date', 'duration', 'banner']
-    search_fields = ['title_en']
-    autocomplete_fields = ['banner']
-
-
-@admin.register(EventAgenda)
-class EventAgendaAdmin(admin.ModelAdmin):
-    list_display = ['title_en', 'time', 'order']
-    search_fields = ['title_en']
-
-
-@admin.register(Gallery)
-class GalleryAdmin(admin.ModelAdmin):
-    list_display = ['title_en', 'type', 'view_count', 'url']
-    list_filter = ['type']
-    search_fields = ['title_en']
-
-
-@admin.register(Uploader)
-class GalleryAdmin(admin.ModelAdmin):
-    list_display = ['file', 'type']
-    list_filter = ['type']
-
-
-@admin.register(GenericChoice)
-class GenericChoiceAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name_en', 'type']
-    list_filter = ['type']
-    search_fields = ['name_en']
-
-
-@admin.register(HomeStatIcons)
-class HomeStatIconsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'annual_revenue']
-
-
-@admin.register(ContactForm)
-class ContactFormAdmin(admin.ModelAdmin):
-    list_display = ['full_name', 'company', 'phone', 'annual_revenue']
-    search_fields = ['full_name', 'company', 'phone']
-    list_filter = ['business_type', 'business_experience']
-    autocomplete_fields = ['business_type', 'business_experience', 'project_count', 'employee_count']
+    fieldsets = (
+        ("Yangilik", {"fields": ("name", "short_des")}),
+        ("Kontent", {"fields": ("description",)}),
+        ("Rasm", {"fields": ("image", "image_preview")}),
+    )
