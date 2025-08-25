@@ -63,7 +63,6 @@ REST_FRAMEWORK = {
         "django_filters.rest_framework.DjangoFilterBackend",
         "rest_framework.filters.SearchFilter",
     ),
-    "DEFAULT_PAGINATION_CLASS": "apps.common.utils.StandardResultsSetPagination", # "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 10,
 }
 
