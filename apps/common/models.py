@@ -85,6 +85,15 @@ class Docs(BaseModel):
         max_length=100,
     )
 
+    def save(self, *args, **kwargs):
+        f = getattr(self, "icon", None)
+        if f and hasattr(f, "size"):
+            try:
+                self.size = round(f.size / (1024 * 1024), 2)
+            except Exception:
+                pass
+        super().save(*args, **kwargs)
+
 class News(BaseModel):
     image = models.ImageField(
         upload_to='news',
