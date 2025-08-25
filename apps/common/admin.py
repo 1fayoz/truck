@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.db import models
 from django.forms.widgets import Textarea
+from packaging.utils import _
 
 from .models import User, Service, Docs, News, Application, Employee
 
@@ -244,7 +245,8 @@ class ApplicationAdmin(admin.ModelAdmin):
         }),
     )
 
-# ---- Forma: vaqtlar mantiqiyligini tekshirish
+
+
 class EmployeeAdminForm(forms.ModelForm):
     class Meta:
         model = Employee
@@ -254,7 +256,6 @@ class EmployeeAdminForm(forms.ModelForm):
         cleaned = super().clean()
         t_from = cleaned.get("work_time_from")
         t_to = cleaned.get("work_time_to")
-        # Agar tungi smena kerak bo'lmasa, oddiy tekshirish:
         if t_from and t_to and t_from >= t_to:
             raise forms.ValidationError(
                 _("'work_time_from' 'work_time_to'dan kichik bo‘lishi kerak.")
