@@ -19,7 +19,6 @@ services:
   web:
     depends_on:
       - db
-      - redis
     build:
       context: .
     image: million-image
