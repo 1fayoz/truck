@@ -152,6 +152,8 @@ class DocsAdmin(admin.ModelAdmin):
     search_fields = ("name",)
     ordering = ("name",)
     list_per_page = 25
+    readonly_fields = ("size",)
+
 
     # Fayl o‘lchamini qayta hisoblash (ixtiyoriy action)
     @admin.action(description="Fayl hajmini (bayt) `size` ga yozish")
