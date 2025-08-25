@@ -66,6 +66,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
             'image',
             'full_name',
             'email',
+            'degree',
             'work_time_from',
             'work_time_to',
         )
