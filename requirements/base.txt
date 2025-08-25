@@ -9,3 +9,4 @@ django-filter
 redis
 pillow
 requests
+environ

@@ -1,359 +1,90 @@
-from .extra_models import *
-
-
-class Industry(BaseModel, NameTranslation):
-    icon = models.URLField()
-
-    def __str__(self):
-        return f"{self.name_en}"
-
-
-class Company(BaseModel, NameTranslation):
-    pass
-
-    def __str__(self):
-        return f"{self.name_en}"
-
-
-class ClubMember(BaseModel, NameTranslation, BioTranslation, PositionTranslation):
-    class DegreeChoice(models.TextChoices):
-        PRESIDENT = 'president', "President"
-        DIRECTOR = 'director', "Director"
-        ASSISTANT_DIRECTORY = 'assistant_director', "Assistant Director"
-
-    class TypeChoice(models.TextChoices):
-        MEMBER = 'member', "Member"
-        EXPERT = 'expert', "Expert"
-
-    company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True)
-    age = models.IntegerField()
-    image = models.URLField(null=True, blank=True)
-    join_date = models.DateField()
-    experience = models.IntegerField()
-    type = models.CharField(max_length=255, choices=TypeChoice.choices, default=TypeChoice.MEMBER, null=True,
-                            blank=True)
-    degree = models.CharField(max_length=255, choices=DegreeChoice.choices, null=True,
-                              blank=True)
-    industry = models.ForeignKey(Industry, on_delete=models.SET_NULL, null=True)
-
-    def __str__(self):
-        return f"{self.name_en}"
-
-
-class Autobiography(BaseModel, DescriptionTranslation):
-    year = models.CharField(max_length=255)
-    member = models.ForeignKey(ClubMember, on_delete=models.CASCADE, related_name='autobiographies')
-    order = models.IntegerField(null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.year}"
-
-
-class SocialLink(BaseModel, NameTranslation):
-    url = models.URLField()
-    member = models.ForeignKey(ClubMember, on_delete=models.CASCADE, related_name='social_links')
-
-    def __str__(self):
-        return f"{self.name_en}"
-
-
-class Metric(BaseModel, TitleTranslation):
-    class MetricType(models.TextChoices):
-        BEFORE = 'before', "Before"
-        AFTER = 'after', "After"
-
-    revenue = models.BigIntegerField()
-    employee_count = models.IntegerField()
-    project_count = models.IntegerField()
-    member = models.ForeignKey(ClubMember, on_delete=models.CASCADE, related_name='metric')
-    type = models.CharField(max_length=255, choices=MetricType.choices, default=MetricType.BEFORE)
-
-    def __str__(self):
-        return f"{self.title_uz}"
-
-
-class ClubOffer(BaseModel, TitleTranslation, DescriptionTranslation):
-    icon = models.CharField(max_length=255)
-    link = models.CharField(max_length=255)
-
-    def __str__(self):
-        return f"{self.title_uz}"
-
-
-class Banner(BaseModel, TitleTranslation, DescriptionTranslation):
-    class BannerType(models.TextChoices):
-        COURSE = 'course', "Course"
-        HOME = 'home', "Home"
-        EVENT = 'event', "Event"
-
-    url = models.CharField(max_length=255)
-    type = models.CharField(max_length=255, choices=BannerType.choices, default=BannerType.HOME)
-
-    def __str__(self):
-        return f"{self.title_uz}"
-
-
-class Speaker(BaseModel, NameTranslation, BioTranslation):
-    image = models.URLField()
-
-    def __str__(self):
-        return f"{self.name_en}"
-
-
-class VideoAndAudio(BaseModel, TitleTranslation, DescriptionTranslation):
-    class ContentType(models.TextChoices):
-        EXCLUSIVE = 'exclusive', "Exclusive"
-        VIDEO_PODCAST = 'video_podcast', "Video Podcast"
-        AUDIO_PODCAST = 'audio_podcast', "Audio Podcast"
-        MEMBER_SPEECH = 'member_speech', "Member Speech"
-
-    url = models.URLField()
-    extra_image = models.URLField(null=True, blank=True)
-    type = models.CharField(max_length=255, choices=ContentType.choices, default=ContentType.VIDEO_PODCAST)
-    members = models.ForeignKey(ClubMember, on_delete=models.SET_NULL, null=True, blank=True)
-    view_count = models.BigIntegerField(null=True)
-    duration = models.CharField(max_length=255, null=True)
-
-    def __str__(self):
-        return f"{self.title_uz}"
-
-
-class PodcastSpeaker(models.Model):
-    podcast = models.ForeignKey(VideoAndAudio, on_delete=models.CASCADE, related_name='podcasts_speaker')
-    speaker = models.ForeignKey(Speaker, on_delete=models.CASCADE, related_name='podcasts_speaker')
-
-
-class TravelCountry(BaseModel, NameTranslation):
-    icon = models.URLField(null=True, blank=True)
-    pass
-
-    def __str__(self):
-        return f"{self.name_en}"
-
-
-class Travel(BaseModel, DescriptionTranslation, ShortDescriptionTranslation):
-    class TravelStatus(models.TextChoices):
-        WAITING = 'waiting', "Waiting"
-        BEEN = 'been', "Been"
-
-    country = models.ForeignKey(TravelCountry, on_delete=models.SET_NULL, null=True)
-    view_count = models.BigIntegerField(default=0)
-    status = models.CharField(max_length=20, choices=TravelStatus.choices, default=TravelStatus.WAITING)
-
-    def __str__(self):
-        return f"{self.id}"
-
-
-class Tag(BaseModel):
-    name = models.CharField(max_length=255, null=True)
-
-    def __str__(self):
-        return str(self.name)
-
-
-class News(BaseModel, TitleTranslation, DescriptionTranslation, ShortDescriptionTranslation):
-    view_count = models.BigIntegerField(default=0)
-    tags = models.ManyToManyField(Tag)
-
-    def __str__(self):
-        return f"{self.title_uz}"
-
-
-class Images(BaseModel):
-    class ImageType(models.TextChoices):
-        NEW = 'new', "New"
-        TRAVEL = 'travel', "Travel"
-        GALLERY = 'gallery', "Gallery"
-
-    type = models.CharField(max_length=255, choices=ImageType.choices, default=ImageType.NEW)
-    image = models.URLField()
-
-    travel = models.ForeignKey(Travel, on_delete=models.SET_NULL, null=True, blank=True, related_name='images')
-    news = models.ForeignKey(News, on_delete=models.SET_NULL, null=True, blank=True, related_name='images')
-    gallery = models.ForeignKey("Gallery", on_delete=models.SET_NULL, null=True, blank=True, related_name='images')
-
-    is_main = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"{self.id}"
-
-
-class BusinessCourse(BaseModel, TitleTranslation, DescriptionTranslation):
-    view_count = models.BigIntegerField(default=0)
-    image = models.URLField()
-    speaker = models.ForeignKey(Speaker, on_delete=models.SET_NULL, null=True)
-    banner = models.ForeignKey(Banner, on_delete=models.SET_NULL, null=True)
-
-    def __str__(self):
-        return f"{self.title_uz}"
-
-
-class CourseInfo(BaseModel, TitleTranslation, DescriptionTranslation):
-    class ModuleType(models.TextChoices):
-        MODULE = 'module', "Module"
-        FORMAT = 'format', "Format"
-
-    module_number = models.BigIntegerField(null=True, blank=True)
-    business_course = models.ForeignKey(BusinessCourse, on_delete=models.CASCADE, related_name='course_info')
-    type = models.CharField(max_length=255, choices=ModuleType.choices, default=ModuleType.MODULE)
-    icon = models.CharField(max_length=255, null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.title_uz}"
-
-
-class NationalValue(BaseModel, TitleTranslation, DescriptionTranslation):
-    icon = models.CharField(max_length=255)
-
-    def __str__(self):
-        return f"{self.title_uz}"
-
-
-class Events(BaseModel, TitleTranslation, DescriptionTranslation, LocationTranslation):
-    class EventType(models.TextChoices):
-        PENDING = 'pending', "Pending"
-        COMPLETED = 'completed', "Completed"
-
-    status = models.CharField(max_length=20, choices=EventType.choices, default=EventType.PENDING)
-    image = models.URLField(null=True)
-    banner = models.ForeignKey(Banner, on_delete=models.SET_NULL, null=True)
-    date = models.DateTimeField()
-    duration = models.CharField(max_length=255)
-    is_zoom = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"{self.title_uz}"
-
-
-class EventSpeaker(models.Model):
-    events = models.ForeignKey(Events, on_delete=models.CASCADE, related_name='event_speakers')
-    speaker = models.ForeignKey(Speaker, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.id}"
-
-
-class EventAgenda(BaseModel, TitleTranslation, DescriptionTranslation):
-    time = models.CharField(max_length=255)
-    order = models.IntegerField()
-    event = models.ForeignKey(Events, on_delete=models.CASCADE, null=True, related_name='agendas')
-
-    def __str__(self):
-        return f"{self.title_uz}"
-
-
-class Gallery(BaseModel, TitleTranslation, DescriptionTranslation):
-    class GalleryType(models.TextChoices):
-        PICTURE = 'picture', "Picture"
-        VIDEO = 'video', "Video"
-
-    type = models.CharField(max_length=50, choices=GalleryType.choices, default=GalleryType.PICTURE)
-    url = models.URLField()
-    view_count = models.BigIntegerField(default=0)
-
-    def __str__(self):
-        return f"{self.title_uz}"
-
-
-class ChoiceType(models.TextChoices):
-    BUSINESS_TYPE = "business_type", "Biznes turi"
-    EXPERIENCE = "experience", "Biznes tajribasi"
-    PROJECT_COUNT = "project_count", "Loyihalar soni"
-    EMPLOYEE_COUNT = "employee_count", "Xodimlar soni"
-
-
-class GenericChoice(BaseModel, NameTranslation):
-    type = models.CharField(max_length=50, choices=ChoiceType.choices)
-
-    def __str__(self):
-        return f"({self.get_type_display()})"
-
-
-class ContactForm(BaseModel):
-    class ContactType(models.TextChoices):
-        ATTENDEE = 'attendee', "Attendee"
-        MEMBER = 'member', "Member"
-        EXPERT = 'expert', "Expert"
-
-    type = models.CharField(max_length=50, choices=ContactType.choices, default='attendee')
-    full_name = models.CharField(max_length=255)
-    phone = models.CharField(max_length=255)
-    company = models.CharField(max_length=255, null=True, blank=True)
-    annual_revenue = models.BigIntegerField(null=True, blank=True)
-
-    business_type = models.ForeignKey(
-        GenericChoice,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='business_type_choices'
+from apps.common.extra_models import BaseModel
+from django.db import models
+
+class User(BaseModel):
+    class Regions(models.IntegerChoices):
+        TASHKENT_CITY = 1, 'Toshkent shahri'
+        ANDIJAN = 2, 'Andijon'
+        BUKHARA = 3, 'Buxoro'
+        FERGHANA = 4, 'Fargʻona'
+        JIZZAKH = 5, 'Jizzax'
+        KHOREZM = 6, 'Xorazm'
+        NAMANGAN = 7, 'Namangan'
+        NAVOI = 8, 'Navoiy'
+        KASHKADARYA = 9, 'Qashqadaryo'
+        KARAKALPAKSTAN = 10, 'Qoraqalpogʻiston Respublikasi'
+        SYRDARYA = 12, 'Sirdaryo'
+        SURKHANDARYA = 13, 'Surxondaryo'
+        TASHKENT_REGION = 14, 'Toshkent viloyati'
+    company = models.CharField(
+        max_length=100,
     )
-    business_experience = models.ForeignKey(
-        GenericChoice,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='experience_choices'
+    inn = models.CharField(
+        max_length=100,
     )
-    project_count = models.ForeignKey(
-        GenericChoice,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='project_count_choices'
+    country = models.SmallIntegerField(
+        choices=Regions.choices,
+        max_length=100,
     )
-    employee_count = models.ForeignKey(
-        GenericChoice,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='employee_count_choices'
+    trans_count = models.IntegerField(
+        default=0,
+    )
+    rating = models.FloatField(
+        default=0,
+    )
+    phone = models.CharField(
+        max_length=100,
+    )
+    full_name = models.CharField(
+        max_length=100,
+    )
+    is_active = models.BooleanField(
+        default=False,
     )
 
-    telegram = models.URLField(max_length=255, null=True, blank=True)
-    linkedin = models.URLField(max_length=255, null=True, blank=True)
-    instagram = models.URLField(max_length=255, null=True, blank=True)
-    facebook = models.URLField(max_length=255, null=True, blank=True)
 
+class Service(BaseModel):
+    class ServiceStaus(models.IntegerChoices):
+        active = 1, 'Active'
+        in_progress = 2, 'In-Progress'
+        completed = 3, 'Completed'
 
-class Partners(BaseModel, NameTranslation):
-    logo = models.URLField()
+    icon = models.ImageField(
+        upload_to='icons',
+    )
+    name = models.CharField(
+        max_length=100,
+    )
+    des = models.TextField(
 
-    def __str__(self):
-        return f"{self.name_en}"
+    )
+    status = models.SmallIntegerField(
+        choices=ServiceStaus.choices,
+        default=ServiceStaus.in_progress,
+        max_length=100,
+    )
 
+class Docs(BaseModel):
+    icon = models.FileField(
+        upload_to='docs',
+    )
+    name = models.CharField(
+        max_length=100,
+    )
+    size = models.CharField(
+        default=0,
+        max_length=100,
+    )
 
-class FAQ(BaseModel):
-    question_uz = models.CharField(max_length=255)
-    question_en = models.CharField(max_length=255)
-    question_ru = models.CharField(max_length=255)
-
-    answer_uz = models.TextField()
-    answer_en = models.TextField()
-    answer_ru = models.TextField()
-
-    def __str__(self):
-        return self.question_uz or " "
-
-
-class Uploader(BaseModel):
-    from .utils import upload_to
-
-    class TypeChoices(models.TextChoices):
-        IMAGE = 'image', "Image"
-        VIDEO = 'video', "Video"
-        AUDIO = 'audio', "Audio"
-
-    type = models.CharField(max_length=10, choices=TypeChoices.choices)
-    file = models.FileField(upload_to=upload_to)
-
-    def __str__(self):
-        return f"{self.file.name}"
-
-
-class HomeStatIcons(models.Model):
-    annual_revenue = models.URLField()
-    club_members = models.URLField()
-    business_fields = models.URLField()
-    export_scope = models.URLField()
-    experience_years = models.URLField()
+class News(BaseModel):
+    image = models.ImageField(
+        upload_to='news',
+    )
+    name = models.CharField(
+        max_length=100,
+    )
+    short_des = models.CharField(
+        max_length=255,
+    )
+    description = models.TextField(
+    )
