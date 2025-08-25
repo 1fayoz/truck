@@ -247,27 +247,9 @@ class ApplicationAdmin(admin.ModelAdmin):
 
 
 
-class EmployeeAdminForm(forms.ModelForm):
-    class Meta:
-        model = Employee
-        fields = "__all__"
-
-    def clean(self):
-        cleaned = super().clean()
-        t_from = cleaned.get("work_time_from")
-        t_to = cleaned.get("work_time_to")
-        if t_from and t_to and t_from >= t_to:
-            raise forms.ValidationError(
-                _("'work_time_from' 'work_time_to'dan kichik bo‘lishi kerak.")
-            )
-        return cleaned
-
-
 
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
-    form = EmployeeAdminForm
-
     # --- Ko‘rinishlar
     list_display = (
         "full_name",
