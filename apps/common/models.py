@@ -25,6 +25,8 @@ class User(BaseModel):
     country = models.SmallIntegerField(
         choices=Regions.choices,
         max_length=100,
+        null=True,
+        blank=True,
     )
     trans_count = models.IntegerField(
         default=0,
