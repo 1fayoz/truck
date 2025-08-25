@@ -57,5 +57,4 @@ class ApplicationSerializer(serializers.ModelSerializer):
             'address',
             'text',
             'file'
-
         )
