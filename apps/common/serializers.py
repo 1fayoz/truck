@@ -6,7 +6,7 @@ from apps.common.jwt import make_custom_jwt
 from apps.common.models import User, Service, Docs, News, Application, Employee, UserVerificationCode
 from apps.common.utils import get_code, send_sms
 
-VERIFICATION_MSG = "Kodni hech kimga bermang! uztruck.org kirish uchun tasdiqlash kodi: {code}"
+VERIFICATION_MSG = "Kodni hech kimga bermang! Lorry mobil ilovasiga kirish uchun tasdiqlash kodi: {code}"
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -31,12 +31,9 @@ class UserSerializer(serializers.ModelSerializer):
         ver, _ = UserVerificationCode.objects.get_or_create(user=user)
         ver.code = get_code()
         ver.save(update_fields=["code"])
-        send_sms(phone, VERIFICATION_MSG.format(code=ver.code))
+        send_sms(VERIFICATION_MSG.format(code=ver.code), phone)
 
-        return {
-            "detail": "Tasdiqlash kodi yuborildi.",
-            "expires_in": 120
-        }
+        return user
 
 class VerifyCodeSerializer(serializers.Serializer):
     phone = serializers.CharField(max_length=100)
@@ -55,7 +52,7 @@ class VerifyCodeSerializer(serializers.Serializer):
         try:
             ver = user.verification
         except UserVerificationCode.DoesNotExist:
-            raise ValidationError({"code": "Kod topilmadi. Avval kod yuboring."})
+            raise ValidationError({"code": "Kod xato yoki qaytadan yuboring"})
 
         if ver.code != code:
             raise ValidationError({"code": "Kod noto‘g‘ri."})
@@ -70,9 +67,7 @@ class VerifyCodeSerializer(serializers.Serializer):
     def create(self, validated_data):
         user = self.validated_data["user"]
         ver = self.validated_data["verification"]
-
         ver.delete()
-
         token = make_custom_jwt(user.id)
 
         return {
