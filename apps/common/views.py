@@ -6,14 +6,10 @@ from rest_framework.exceptions import NotAuthenticated, ValidationError
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListCreateAPIView, GenericAPIView, RetrieveAPIView, get_object_or_404
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 
 from apps.common import serializers
 from apps.common.models import User, Service, Docs, News, Application, Employee
-from rest_framework_simplejwt.authentication import JWTAuthentication
-
 from core.settings import base
-from core.settings.base import JWT_SECRET, JWT_ALG
 
 
 class UserLogin(ListCreateAPIView):
