@@ -9,6 +9,8 @@ from apps.common.utils import get_code, send_sms
 VERIFICATION_MSG = "Kodni hech kimga bermang! O'zbekiston yuk tashuvchilar uyushmasi platformasiga kirish uchun tasdiqlash kodi: {code}"
 
 class UserSerializer(serializers.ModelSerializer):
+    country_display = serializers.CharField(source="get_country_display", read_only=True)
+
     class Meta:
         model = User
         fields = "__all__"
@@ -34,6 +36,11 @@ class UserSerializer(serializers.ModelSerializer):
         send_sms(VERIFICATION_MSG.format(code=ver.code), phone)
 
         return user
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['country'] = instance.get_country_display()
+        return representation
 
 class VerifyCodeSerializer(serializers.Serializer):
     phone = serializers.CharField(max_length=100)
