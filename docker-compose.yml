@@ -1,60 +1,75 @@
 services:
   db:
-    image: postgres
-    container_name: "million_db"
+    image: postgres:16
+    container_name: million_db
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data2:/var/lib/postgresql/data
     ports:
-      - "5434:5434"
-    environment:
-      - SECRET_KEY=${SECRET_KEY}
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-    env_file:
-      - .env
-    networks:
-      - app_network
-
-  web:
-    depends_on:
-      - db
-    build:
-      context: .
-    image: million-image
-    volumes:
-      - .:/app
-      - ./static:/app/static/
-      - ./media:/app/media/
-    env_file:
-      - .env
-    container_name: million-container
-    command: gunicorn --workers=3 --bind 0.0.0.0:8011 core.wsgi:application
-    ports:
-      - "8011:8011"
-    expose:
-      - "8011"
-    restart: always
-    networks:
-      - app_network
-
-  redis:
-    image: "redis:7"
-    container_name: "mzr-redis-container"
-    expose:
-      - "6379"
+      - "5434:5432"
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - app_network
     restart: always
 
+  redis:
+    image: redis:7-alpine
+    container_name: mzr-redis-container
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    expose:
+      - "6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+    restart: always
+
+  web:
+    build:
+      context: .
+    image: million-image
+    container_name: million-container
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - .:/app
+      - ./static:/app/static
+      - ./media:/app/media
+    command: gunicorn --workers=3 --bind 0.0.0.0:8011 core.wsgi:application
+    ports:
+      - "8011:8011"
+    restart: always
+    networks:
+      - app_network
 
 volumes:
   postgres_data2:
-  static:
-  media:
+  redis_data:
 
 networks:
   app_network:
