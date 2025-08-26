@@ -196,5 +196,7 @@ CORS_ALLOW_HEADERS = ["*"]
 
 CSRF_COOKIE_SECURE = True
 CSRF_TRUSTED_ORIGINS = [
-    "*"
+    "https://api.uztruck.org",
 ]
+CSRF_COOKIE_DOMAIN = ".uztruck.org"
+
