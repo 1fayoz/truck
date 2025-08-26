@@ -4,7 +4,7 @@ from django.conf import settings
 def make_custom_jwt(profile_id: int):
     now = int(time.time())
     payload = {
-        "sub": profile_id,
+        "sub": str(profile_id),
         "iat": now,
         "exp": now + settings.JWT_EXPIRE_MIN,
     }

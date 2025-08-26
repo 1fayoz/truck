@@ -7,7 +7,7 @@ from django.db import models
 from django.forms.widgets import Textarea
 from packaging.utils import _
 
-from .models import User, Service, Docs, News, Application, Employee
+from .models import User, Service, Docs, News, Application, Employee, Consent
 
 # ---------- Umumiy qulayliklar ----------
 admin.site.site_header = "Admin Panel"
@@ -81,34 +81,418 @@ def image_preview(obj, field_name, size=48):
 
 
 # ---------- User ----------
+
+from django.contrib import admin
+from .models import (
+    User, PersonProfile, CompanyProfile, Vehicle, Trailer,
+    CarrierPreference, Service, UserDoc, Consent, MembershipApplication
+)
+
+# ===============================
+# USER bilan birga boshqa modellarni qulay boshqarish uchun InlineAdmin ishlatamiz
+# ===============================
+
+class PersonProfileInline(admin.StackedInline):
+    model = PersonProfile
+    extra = 0
+    can_delete = False
+    verbose_name = "Jismoniy shaxs profili"
+    verbose_name_plural = "Jismoniy shaxs profili"
+
+
+class CompanyProfileInline(admin.StackedInline):
+    model = CompanyProfile
+    extra = 0
+    can_delete = False
+    verbose_name = "Yuridik shaxs profili"
+    verbose_name_plural = "Yuridik shaxs profili"
+
+
+class VehicleInline(admin.TabularInline):
+    model = Vehicle
+    extra = 0
+    verbose_name = "Transport vositasi"
+    verbose_name_plural = "Transport vositalari"
+
+
+class TrailerInline(admin.TabularInline):
+    model = Trailer
+    extra = 0
+    verbose_name = "Tirkama"
+    verbose_name_plural = "Tirkamalar"
+
+
+class CarrierPreferenceInline(admin.StackedInline):
+    model = CarrierPreference
+    extra = 0
+    verbose_name = "Yuk tashish preferensiyasi"
+    verbose_name_plural = "Yuk tashish preferensiyalari"
+
+
+class UserDocInline(admin.StackedInline):
+    model = UserDoc
+    extra = 0
+    verbose_name = "Hujjat"
+    verbose_name_plural = "Hujjatlar"
+
+
+class ConsentInline(admin.StackedInline):
+    model = Consent
+    extra = 0
+    verbose_name = "Rozilik"
+    verbose_name_plural = "Rozilik"
+
+
+class MembershipApplicationInline(admin.TabularInline):
+    model = MembershipApplication
+    extra = 0
+    verbose_name = "A’zolik arizasi"
+    verbose_name_plural = "A’zolik arizalari"
+
+
+
+
+# ===============================
+# ALOHIDA MODELLAR ADMINDA (agar kerak bo‘lsa alohida ko‘rsatish uchun)
+# ===============================
+
+
+@admin.register(Vehicle)
+class VehicleAdmin(admin.ModelAdmin):
+    list_display = ("owner", "plate_number", "brand", "model", "manufactured_year")
+    search_fields = ("plate_number", "brand", "model")
+
+
+# ===============================================
+# ADMIN SOZLAMALARI (to'liq) – admin.py ichiga joylang
+# ===============================================
+from django.contrib import admin
+from django import forms
+
+# --- ModelFormlar: O'zbekcha yorliqlar, tartib va tekshiruvlar ---
+
+class PersonProfileForm(forms.ModelForm):
+    class Meta:
+        model = PersonProfile
+        fields = [
+            # 1. Shaxsiy ma'lumotlar
+            'birth_date', 'passport_number', 'passport_given_at', 'passport_issuer',
+            # 2. Manzil
+            'region', 'district', 'street', 'house',
+            # 3. Ish joyi va tajriba
+            'workplace_name', 'workplace_inn', 'years_of_experience', 'has_international_visa', 'extra_phone',
+        ]
+        labels = {
+            'birth_date': "Tug'ilgan sana",
+            'passport_number': "Pasport seriyasi va raqami",
+            'passport_given_at': "Pasport berilgan sana",
+            'passport_issuer': "Beruvchi organ",
+            'region': "Viloyat",
+            'district': "Tuman",
+            'street': "Ko'cha",
+            'house': "Uy",
+            'workplace_name': "Ish joyi (tashkilot nomi)",
+            'workplace_inn': "Ish joyi STIR",
+            'years_of_experience': "Ish tajribasi (yil)",
+            'has_international_visa': "Xalqaro viza mavjud",
+            'extra_phone': "Qo'shimcha telefon",
+        }
+
+
+class CompanyProfileForm(forms.ModelForm):
+    class Meta:
+        model = CompanyProfile
+        fields = [
+            'name', 'registered_at', 'inn', 'legal_address',
+            'director_full_name', 'responsible_full_name',
+            'phone', 'email', 'website',
+            'employees_total', 'drivers_total', 'stability_rating',
+        ]
+        labels = {
+            'name': "Tashkilot nomi",
+            'registered_at': "Ro'yxatdan o'tgan sana",
+            'inn': "STIR",
+            'legal_address': "Yuridik manzil",
+            'director_full_name': "Rahbarning F.I.Sh.",
+            'responsible_full_name': "Mas'ul vakil F.I.Sh.",
+            'phone': "Telefon raqami",
+            'email': "Elektron pochta",
+            'website': "Veb-sayt",
+            'employees_total': "Umumiy xodimlar soni",
+            'drivers_total': "Haydovchilar soni",
+            'stability_rating': "Barqarorlik reytingi (0–5)",
+        }
+
+
+class VehicleForm(forms.ModelForm):
+    class Meta:
+        model = Vehicle
+        fields = [
+            'brand', 'model', 'plate_number', 'manufactured_year', 'fuel',
+            'tech_passport_number', 'insurance_policy_number', 'insurance_valid_until',
+        ]
+        labels = {
+            'brand': "Avtomobil markasi",
+            'model': "Modeli",
+            'plate_number': "Davlat raqami",
+            'manufactured_year': "Ishlab chiqarilgan yili",
+            'fuel': "Yoqilg'i turi",
+            'tech_passport_number': "Texnik pasport raqami",
+            'insurance_policy_number': "Sug'urta polisi raqami",
+            'insurance_valid_until': "Sug'urta amal qiladigan sana",
+        }
+
+
+class TrailerForm(forms.ModelForm):
+    class Meta:
+        model = Trailer
+        fields = [
+            'brand', 'model', 'plate_number', 'manufactured_year', 'capacity_tons', 'tech_passport_number',
+        ]
+        labels = {
+            'brand': "Tirkama markasi",
+            'model': "Modeli",
+            'plate_number': "Davlat raqami",
+            'manufactured_year': "Ishlab chiqarilgan yili",
+            'capacity_tons': "Yuk ko'tarish sig'imi (t)",
+            'tech_passport_number': "Texnik pasport raqami",
+        }
+
+
+class CarrierPreferenceForm(forms.ModelForm):
+    class Meta:
+        model = CarrierPreference
+        fields = [
+            'scope', 'primary_route_1', 'primary_route_2', 'primary_route_3', 'international_routes', 'cargo_types',
+        ]
+        labels = {
+            'scope': "Yo'nalish turi",
+            'primary_route_1': "Asosiy yo'nalish 1",
+            'primary_route_2': "Asosiy yo'nalish 2",
+            'primary_route_3': "Asosiy yo'nalish 3",
+            'international_routes': "Xalqaro yo'nalishlar",
+            'cargo_types': "Asosiy yuk turlari (ID ro'yxati)",
+        }
+        help_texts = {
+            'cargo_types': "Masalan: [1,2,3] (CargoType qiymatlari)",
+        }
+
+
+class ConsentForm(forms.ModelForm):
+    class Meta:
+        model = Consent
+        fields = ['charter_agreed', 'personal_data_processing', 'agreed_at']
+        labels = {
+            'charter_agreed': "\"Uyushma Ustavini o'qidim va roziman\"",
+            'personal_data_processing': "\"Shaxsiy ma'lumotlarimni qayta ishlashga roziman\"",
+            'agreed_at': "Tasdiqlangan vaqti",
+        }
+
+
+class MembershipApplicationForm(forms.ModelForm):
+    class Meta:
+        model = MembershipApplication
+        fields = ['full_name', 'phone', 'email', 'address', 'note', 'attachment', 'status']
+        labels = {
+            'full_name': "To'liq ism-sharif",
+            'phone': "Telefon raqami",
+            'email': "Elektron pochta",
+            'address': "Manzil",
+            'note': "Izoh",
+            'attachment': "Biriktirilgan fayl",
+            'status': "Holat",
+        }
+
+
+# --- Inline-lar: User markazida hammasini bir joyda ko'rish/yaratish ---
+
+class PersonProfileInline(admin.StackedInline):
+    model = PersonProfile
+    form = PersonProfileForm
+    can_delete = False
+    extra = 0
+    fieldsets = (
+        ("1. Shaxsiy ma'lumotlar", {
+            'fields': ('birth_date', 'passport_number', 'passport_given_at', 'passport_issuer')
+        }),
+        ("2. Yashash manzili", {
+            'fields': ('region', 'district', 'street', 'house')
+        }),
+        ("3. Ish joyi va tajriba", {
+            'fields': ('workplace_name', 'workplace_inn', 'years_of_experience', 'has_international_visa', 'extra_phone')
+        }),
+    )
+
+
+class CompanyProfileInline(admin.StackedInline):
+    model = CompanyProfile
+    form = CompanyProfileForm
+    can_delete = False
+    extra = 0
+    fieldsets = (
+        ("1. Tashkilot ma'lumotlari", {
+            'fields': ('name', 'registered_at', 'inn', 'legal_address')
+        }),
+        ("2. Rahbar va mas'ul", {
+            'fields': ('director_full_name', 'responsible_full_name')
+        }),
+        ("3. Aloqa", {
+            'fields': ('phone', 'email', 'website')
+        }),
+        ("4. Statistika", {
+            'fields': ('employees_total', 'drivers_total', 'stability_rating')
+        }),
+    )
+
+
+class VehicleInline(admin.StackedInline):
+    model = Vehicle
+    form = VehicleForm
+    extra = 0
+
+
+class TrailerInline(admin.StackedInline):
+    model = Trailer
+    form = TrailerForm
+    extra = 0
+
+
+class CarrierPreferenceInline(admin.StackedInline):
+    model = CarrierPreference
+    form = CarrierPreferenceForm
+    extra = 0
+
+
+class UploadedDocumentInline(admin.TabularInline):
+    model = UserDoc
+    extra = 0
+    fields = ('document_type', 'file',)
+
+
+class ConsentInline(admin.StackedInline):
+    model = Consent
+    form = ConsentForm
+    can_delete = False
+    extra = 0
+    readonly_fields = ('agreed_at',)
+
+
+class MembershipApplicationInline(admin.TabularInline):
+    model = MembershipApplication
+    form = MembershipApplicationForm
+    extra = 0
+
+
+# --- User Admin: bir sahifada to'liq oqim ---
+
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = (
-        "full_name", "company", "inn", "country", "phone",
-        "trans_count", "rating",
-    )
-    list_filter = (
-        "country",
-        RatingRangeFilter,
-        TransCountFilter,
-        # Agar BaseModel’da created_at bo‘lsa, quyidagini oching:
-        # ("created_at",)
-    )
-    search_fields = ("full_name", "company", "inn", "phone")
-    ordering = ("-rating", "full_name")
-    list_per_page = 25
-    formfield_overrides = TEXTAREA_OVERRIDES
-    # Tez tahrirlash uchun:
-    list_editable = ("rating", )
-    # Detal sahifada maydon tartibi:
+    list_display = ("id", "full_name", "phone", "type", "is_active", "rating", "trans_count")
+    list_filter = ("type", "is_active", "country")
+    search_fields = ("full_name", "phone", "company", "inn")
+    readonly_fields = ()
+
     fieldsets = (
-        ("Asosiy ma’lumot", {
-            "fields": ("full_name", "company", "inn", "phone", "country")
-        }),
-        ("Statistika", {
-            "fields": ("trans_count", "rating"),
+        ("Asosiy ma'lumotlar", {
+            'fields': ("full_name", "phone", "type", "company", "inn", "country", "rating", "trans_count", "is_active"),
+            'description': "Foydalanuvchi tipi tanlangandan so'ng mos inline bloklar pastda ochiladi."
         }),
     )
+
+    def get_inlines(self, request, obj=None):
+        """
+        Navbat/tartib: User.type ga qarab mos inlinelar ko'rsatiladi.
+        DRIVER/Jismoniy uchun – PersonProfile, Vehicle, Trailer, CarrierPreference, UploadedDocument, Consent, MembershipApplication
+        COMPANY (Yuridik) uchun – CompanyProfile, Vehicle, Trailer, CarrierPreference, UploadedDocument, Consent, MembershipApplication
+        Boshqa – faqat Consent va UploadedDocument
+        """
+        base = [UploadedDocumentInline, ConsentInline, MembershipApplicationInline]
+        if obj:
+            if obj.type == User.UserTypes.DRIVER:
+                return [PersonProfileInline, VehicleInline, TrailerInline, CarrierPreferenceInline] + base
+            elif obj.type == User.UserTypes.PERSON:
+                return [CompanyProfileInline, VehicleInline, TrailerInline, CarrierPreferenceInline] + base
+            else:
+                return base
+        # Yangi yaratishda hali type aniq emas – minimal to'plam
+        return base
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        # Yangi yaratilganda mos profilni avtomatik yaratib qo'yish (qulay oqim)
+        if not change:
+            if obj.type == User.UserTypes.DRIVER and not hasattr(obj, 'person'):
+                PersonProfile.objects.create(user=obj)
+            if obj.type == User.UserTypes.PERSON and not hasattr(obj, 'company_profile'):
+                CompanyProfile.objects.create(user=obj, name=obj.company or obj.full_name, inn=obj.inn or '', legal_address='')
+            if not hasattr(obj, 'consent'):
+                Consent.objects.create(user=obj)
+
+
+# --- Qolgan modellarning admini ---
+
+@admin.register(PersonProfile)
+class PersonProfileAdmin(admin.ModelAdmin):
+    form = PersonProfileForm
+    list_display = ("user", "birth_date", "passport_number", "region", "years_of_experience")
+    list_filter = ("region", "has_international_visa")
+    search_fields = ("user__full_name", "passport_number", "district", "street")
+    fieldsets = (
+        ("1. Shaxsiy ma'lumotlar", {'fields': ('user', 'birth_date', 'passport_number', 'passport_given_at', 'passport_issuer')}),
+        ("2. Yashash manzili", {'fields': ('region', 'district', 'street', 'house')}),
+        ("3. Ish joyi va tajriba", {'fields': ('workplace_name', 'workplace_inn', 'years_of_experience', 'has_international_visa', 'extra_phone')}),
+    )
+
+
+@admin.register(CompanyProfile)
+class CompanyProfileAdmin(admin.ModelAdmin):
+    form = CompanyProfileForm
+    list_display = ("name", "inn", "phone", "employees_total", "drivers_total", "stability_rating")
+    list_filter = ("registered_at",)
+    search_fields = ("name", "inn", "director_full_name")
+    fieldsets = (
+        ("1. Tashkilot ma'lumotlari", {'fields': ('user', 'name', 'registered_at', 'inn', 'legal_address')}),
+        ("2. Rahbar va mas'ul", {'fields': ('director_full_name', 'responsible_full_name')}),
+        ("3. Aloqa", {'fields': ('phone', 'email', 'website')}),
+        ("4. Statistika", {'fields': ('employees_total', 'drivers_total', 'stability_rating')}),
+    )
+
+
+@admin.register(Trailer)
+class TrailerAdmin(admin.ModelAdmin):
+    form = TrailerForm
+    list_display = ("vehicle", "plate_number", "brand", "model", "capacity_tons")
+    search_fields = ("plate_number", "brand", "model", "vehicle__plate_number")
+
+
+@admin.register(CarrierPreference)
+class CarrierPreferenceAdmin(admin.ModelAdmin):
+    form = CarrierPreferenceForm
+    list_display = ("user", "scope", "primary_route_1")
+    list_filter = ("scope",)
+
+
+@admin.register(UserDoc)
+class UploadedDocumentAdmin(admin.ModelAdmin):
+    list_display = ("user", "document_type", )
+    list_filter = ("document_type",)
+    autocomplete_fields = ("user",)
+
+
+@admin.register(Consent)
+class ConsentAdmin(admin.ModelAdmin):
+    form = ConsentForm
+    list_display = ("user", "charter_agreed", "personal_data_processing", "agreed_at")
+    readonly_fields = ("agreed_at",)
+
+
+@admin.register(MembershipApplication)
+class MembershipApplicationAdmin(admin.ModelAdmin):
+    form = MembershipApplicationForm
+    list_display = ("user", "full_name", "phone", "status")
+    list_filter = ("status",)
+    search_fields = ("full_name", "phone", "user__full_name")
+
 
 
 # ---------- Service ----------

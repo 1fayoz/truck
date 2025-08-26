@@ -3,6 +3,7 @@ from datetime import timedelta
 
 import requests
 from django.core.cache import cache
+from django.core.validators import RegexValidator
 from django.utils import timezone
 
 from core.settings.base import SMS_TOKEN_URL, SMS_EMAIL, SMS_PASSWORD, SMS_SEND_URL
@@ -45,9 +46,6 @@ def send_sms(message: str, phone: str):
             data=payload,
             headers=headers,
     )
-
-    print(response.json())
-    print(response.status_code)
     if response.status_code == 200:
         return response.json()
     else:
@@ -59,3 +57,17 @@ def two_minutes_from_now():
 
 def get_code(length: int = 4) -> str:
     return f"{random.randint(10**(length-1), 10**length - 1)}"
+
+
+digits_only_validator = RegexValidator(r"^\d+$", "Faqat raqam kiriting.")
+uz_phone_validator = RegexValidator(
+r"^(\+?998|998)?\s?\d{2}\s?\d{3}\s?\d{2}\s?\d{2}$",
+"Telefon raqamini +998 ** ** ** ** ko'rinishida kiriting.",
+)
+
+
+passport_validator = RegexValidator(
+r"^[A-Z]{2}\d{7}$",
+"Pasport seriya va raqami (masalan, AA1234567) ko'rinishida bo'lishi kerak.",
+)
+inn_validator = RegexValidator(r"^\d{9,12}$", "STIR/INN 9–12 xonali bo'lishi kerak.")
