@@ -1,5 +1,11 @@
-from apps.common.extra_models import BaseModel
+from datetime import timedelta
+
 from django.db import models
+from django.utils import timezone
+
+from apps.common.extra_models import BaseModel
+from apps.common.utils import two_minutes_from_now
+
 
 class User(BaseModel):
     class Regions(models.IntegerChoices):
@@ -20,6 +26,7 @@ class User(BaseModel):
     class UserTypes(models.IntegerChoices):
         DRIVER = 1, 'Haydovchi'
         PERSON = 2, 'Yuridik Shaxs'
+        OTHER = 3, 'Boshqa'
 
     company = models.CharField(
         max_length=100,
@@ -52,6 +59,26 @@ class User(BaseModel):
     is_active = models.BooleanField(
         default=False,
     )
+
+
+    def __str__(self):
+        return str(self.full_name)
+
+class UserVerificationCode(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='verification',
+    )
+    code = models.CharField(
+        max_length=10,
+    )
+    expires_at = models.DateTimeField(
+        default=two_minutes_from_now,
+    )
+
+    def __str__(self):
+        return f"{self.user} - {self.code}"
 
 
 class Service(BaseModel):
