@@ -282,7 +282,7 @@ class Service(BaseModel):
         in_progress = 2, _('Jarayonda')
         completed = 3, _('Yakunlangan')
 
-    icon = models.ImageField(
+    icon = models.FileField(
         upload_to='icons', null=True, blank=True,
         verbose_name=_("Piktogramma"),
     )
