@@ -16,8 +16,17 @@ class User(BaseModel):
         SYRDARYA = 12, 'Sirdaryo'
         SURKHANDARYA = 13, 'Surxondaryo'
         TASHKENT_REGION = 14, 'Toshkent viloyati'
+
+    class UserTypes(models.IntegerChoices):
+        DRIVER = 1, 'Haydovchi'
+        PERSON = 2, 'Yuridik Shaxs'
+
     company = models.CharField(
         max_length=100,
+    )
+    type = models.SmallIntegerField(
+        choices=UserTypes.choices,
+        default=UserTypes.DRIVER,
     )
     inn = models.CharField(
         max_length=100,
