@@ -1,7 +1,4 @@
-from datetime import timedelta
-
 from django.db import models
-from django.utils import timezone
 
 from apps.common.extra_models import BaseModel
 from apps.common.utils import two_minutes_from_now
@@ -30,6 +27,8 @@ class User(BaseModel):
 
     company = models.CharField(
         max_length=100,
+        null=True,
+        blank=True,
     )
     type = models.SmallIntegerField(
         choices=UserTypes.choices,
@@ -37,6 +36,8 @@ class User(BaseModel):
     )
     inn = models.CharField(
         max_length=100,
+        null=True,
+        blank=True,
     )
     country = models.SmallIntegerField(
         choices=Regions.choices,
@@ -46,9 +47,13 @@ class User(BaseModel):
     )
     trans_count = models.IntegerField(
         default=0,
+        null=True,
+        blank=True,
     )
     rating = models.FloatField(
         default=0,
+        null=True,
+        blank=True,
     )
     phone = models.CharField(
         max_length=100,
