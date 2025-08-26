@@ -6,7 +6,7 @@ from apps.common.jwt import make_custom_jwt
 from apps.common.models import User, Service, Docs, News, Application, Employee, UserVerificationCode
 from apps.common.utils import get_code, send_sms
 
-VERIFICATION_MSG = "Kodni hech kimga bermang! Lorry mobil ilovasiga kirish uchun tasdiqlash kodi: {code}"
+VERIFICATION_MSG = "Kodni hech kimga bermang! O'zbekiston yuk tashuvchilar uyushmasi platformasiga kirish uchun tasdiqlash kodi: {code}"
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
