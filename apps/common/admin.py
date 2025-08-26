@@ -117,12 +117,6 @@ class UploadedDocumentInline(admin.TabularInline):
     fields = ("document_type", "file")
 
 
-class ConsentInline(admin.StackedInline):
-    model = Consent
-    extra = 0
-    can_delete = False
-    readonly_fields = ("agreed_at",)
-
 
 class MembershipApplicationInline(admin.TabularInline):
     model = MembershipApplication
@@ -164,7 +158,7 @@ class UserAdmin(admin.ModelAdmin):
     )
 
     def get_inlines(self, request, obj=None):
-        base = [UploadedDocumentInline, ConsentInline, MembershipApplicationInline]
+        base = [UploadedDocumentInline, MembershipApplicationInline]
         if obj:
             if obj.type == User.UserTypes.DRIVER:
                 return [PersonProfileInline, VehicleInline, TrailerInline, CarrierPreferenceInline] + base
