@@ -7,6 +7,7 @@ urlpatterns = [
     path("me", views.MeFromSubView.as_view(), name="api-me"),
     path('user', views.UserLogin.as_view()),
     path('user-verify', views.VerifyLoginCodeView.as_view()),
+    path('user-stats', views.NewsDetailView.as_view()),
     path('service', views.ServiceView.as_view()),
 
     path('docs', views.DocsView.as_view()),

@@ -1,4 +1,5 @@
 import jwt
+from django.db.models import Count, Q
 from django_filters.rest_framework import DjangoFilterBackend
 from jwt import ExpiredSignatureError, InvalidSignatureError, ImmatureSignatureError, InvalidAlgorithmError, \
     DecodeError, InvalidTokenError
@@ -101,3 +102,18 @@ class MeFromSubView(RetrieveAPIView):
             raise ValidationError("Tokenda 'sub' claim yo‘q.")
 
         return get_object_or_404(User, pk=sub)
+
+class NewsDetailView(RetrieveAPIView):
+    serializer_class = serializers.UserStats
+
+    def get_queryset(self):
+        qs = (
+            User.objects
+            .annotate(
+                driver_count=Count('id', filter=Q(type=1)),
+                person_count=Count('id', filter=Q(type=2)),
+                others_count=Count('id', filter=Q(type=3)),
+
+            )
+        )
+        return qs

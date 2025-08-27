@@ -108,3 +108,9 @@ class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
         fields = '__all__'
+
+class UserStats(serializers.Serializer):
+    driver_count = serializers.IntegerField(default=0)
+    person_count = serializers.IntegerField(default=0)
+    other_count = serializers.IntegerField(default=0)
+
