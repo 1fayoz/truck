@@ -9,6 +9,7 @@ from rest_framework.response import Response
 
 from apps.common import serializers
 from apps.common.models import User, Service, Docs, News, Application, Employee
+from apps.common.pagination import UserPagination
 from core.settings import base
 
 
@@ -18,6 +19,7 @@ class UserLogin(ListCreateAPIView):
     filter_backends = (DjangoFilterBackend, SearchFilter)
     search_fields = ('full_name', 'phone')
     filterset_fields = ('is_active', 'type')
+    pagination_class = UserPagination
 
 class VerifyLoginCodeView(GenericAPIView):
     serializer_class = serializers.VerifyCodeSerializer
