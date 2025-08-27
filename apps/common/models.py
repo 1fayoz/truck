@@ -386,7 +386,7 @@ class MembershipApplication(BaseModel):
 
 class Docs(BaseModel):
     icon = models.FileField(upload_to='docs', verbose_name=_("Fayl"))
-    name = models.CharField(max_length=100, verbose_name=_("Nom"))
+    name = models.CharField(max_length=555, verbose_name=_("Nom"))
     size = models.CharField(default=0, max_length=100, verbose_name=_("Hajm (MB)"))
 
     class Meta:
@@ -405,7 +405,7 @@ class Docs(BaseModel):
 
 class News(BaseModel):
     image = models.ImageField(upload_to='news', verbose_name=_("Rasm"))
-    name = models.CharField(max_length=100, verbose_name=_("Sarlavha"))
+    name = models.CharField(max_length=555, verbose_name=_("Sarlavha"))
     short_des = models.CharField(max_length=255, verbose_name=_("Qisqa taʼrif"))
     description = models.TextField(verbose_name=_("Matn"))
 
