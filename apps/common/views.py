@@ -106,14 +106,10 @@ class MeFromSubView(RetrieveAPIView):
 class NewsDetailView(RetrieveAPIView):
     serializer_class = serializers.UserStats
 
-    def get_queryset(self):
-        qs = (
-            User.objects
-            .annotate(
-                driver_count=Count('id', filter=Q(type=1)),
-                person_count=Count('id', filter=Q(type=2)),
-                others_count=Count('id', filter=Q(type=3)),
-
-            )
+    def get_object(self):
+        stats = User.objects.aggregate(
+            driver_count=Count('id', filter=Q(type=1)),
+            person_count=Count('id', filter=Q(type=2)),
+            other_count=Count('id', filter=Q(type=3)),
         )
-        return qs
+        return stats
