@@ -341,7 +341,7 @@ class ApplicationAdmin(admin.ModelAdmin):
 
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
-    list_display = ("image_thumb", "full_name", "degree", "email", "work_time_range", "total_hours")
+    list_display = ("image_thumb", "full_name", "degree", "email", "work_time_range", "total_hours", 'created_at')
     search_fields = ("full_name", "degree", "email")
     ordering = ("full_name",)
     list_per_page = 25
