@@ -41,7 +41,7 @@ class DocsView(ListCreateAPIView):
     serializer_class = serializers.DocsSerializer
 
 class NewsListView(ListCreateAPIView):
-    queryset = News.objects.all()
+    queryset = News.objects.all().order_by('-id')
     serializer_class = serializers.NewsSerializer
 
 class ApplicationListView(ListCreateAPIView):
