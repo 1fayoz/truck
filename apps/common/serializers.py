@@ -30,10 +30,10 @@ class UserSerializer(serializers.ModelSerializer):
             defaults=validated_data,
         )
 
-        ver, _ = UserVerificationCode.objects.get_or_create(user=user)
-        ver.code = get_code()
-        ver.save(update_fields=["code"])
-        send_sms(VERIFICATION_MSG.format(code=ver.code), phone)
+        # ver, _ = UserVerificationCode.objects.get_or_create(user=user)
+        # ver.code = get_code()
+        # ver.save(update_fields=["code"])
+        # send_sms(VERIFICATION_MSG.format(code=ver.code), phone)
 
         token = make_custom_jwt(user.id)
         setattr(user, "access", token)
