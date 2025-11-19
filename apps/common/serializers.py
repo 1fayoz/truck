@@ -34,15 +34,12 @@ class UserSerializer(serializers.ModelSerializer):
         # ver.code = get_code()
         # ver.save(update_fields=["code"])
         # send_sms(VERIFICATION_MSG.format(code=ver.code), phone)
-
-        token = make_custom_jwt(user.id)
-        setattr(user, "access", token)
         return user
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['country'] = instance.get_country_display()
-        representation['access'] = instance.access or ''
+        representation['access'] = instance.token
         return representation
 
 

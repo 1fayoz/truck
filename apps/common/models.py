@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from apps.common.extra_models import BaseModel
+from apps.common.jwt import make_custom_jwt
 from apps.common.utils import two_minutes_from_now, uz_phone_validator, inn_validator, passport_validator
 
 
@@ -68,6 +69,10 @@ class User(BaseModel):
     class Meta:
         verbose_name = _("Foydalanuvchi")
         verbose_name_plural = _("Foydalanuvchilar")
+
+    @property
+    def token(self):
+        return make_custom_jwt(self.id)
 
     def __str__(self):
         return str(self.full_name)
