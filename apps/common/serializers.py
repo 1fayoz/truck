@@ -42,7 +42,7 @@ class UserSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['country'] = instance.get_country_display()
-        representation['access'] = instance.access
+        representation['access'] = instance.access or ''
         return representation
 
 
