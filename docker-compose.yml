@@ -16,14 +16,12 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-    networks:
-      - app_network
     restart: always
 
 
   redis:
     image: redis:7-alpine
-    container_name: truck_container
+    container_name: truck_redis
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis_data:/data
@@ -34,15 +32,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - app_network
     restart: always
 
   web:
     build:
       context: .
     image: truck-image
-    container_name: truck_container
+    container_name: truck_web
     depends_on:
       db:
         condition: service_healthy
@@ -66,13 +62,8 @@ services:
     ports:
       - "8011:8011"
     restart: always
-    networks:
-      - app_network
 
 volumes:
   postgres_data2:
   redis_data:
 
-networks:
-  app_network:
-    driver: bridge
