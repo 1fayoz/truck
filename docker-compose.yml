@@ -65,6 +65,6 @@ services:
     restart: always
 
 volumes:
-  postgres_data2:
+  postgres_data:
   redis_data:
 
