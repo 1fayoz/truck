@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:16
-    container_name: million_db
+    container_name: truck_db
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
@@ -23,7 +23,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: mzr-redis-container
+    container_name: truck_container
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redis_data:/data
@@ -41,8 +41,8 @@ services:
   web:
     build:
       context: .
-    image: million-image
-    container_name: million-container
+    image: truck-image
+    container_name: truck_container
     depends_on:
       db:
         condition: service_healthy
