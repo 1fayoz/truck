@@ -2,7 +2,6 @@ import gzip
 import io
 import os
 import random
-from datetime import datetime
 from datetime import timedelta
 
 import requests
@@ -13,16 +12,11 @@ from django.utils import timezone
 from core.settings.base import SMS_TOKEN_URL, SMS_EMAIL, SMS_PASSWORD, SMS_SEND_URL
 
 
-def compress_in_memory(data):
-    compressed_stream = io.BytesIO()
-    with gzip.GzipFile(fileobj=compressed_stream, mode='wb') as f_out:
-        f_out.write(data)
-    return compressed_stream.getvalue()
-
-
 def dump_pg_data(project_name, db_name, db_user, db_password, db_host, db_port, chat_id, bot_token):
     try:
+
         command = f'PGPASSWORD={db_password} pg_dump -U {db_user} -h {db_host} -p {db_port} {db_name}'
+
         dump_data = os.popen(command).read().encode()
 
         if not dump_data:
@@ -35,8 +29,15 @@ def dump_pg_data(project_name, db_name, db_user, db_password, db_host, db_port, 
         return False, f'Error: {e}'
 
 
+def compress_in_memory(data):
+    compressed_stream = io.BytesIO()
+    with gzip.GzipFile(fileobj=compressed_stream, mode='wb') as f_out:
+        f_out.write(data)
+    return compressed_stream.getvalue()
+
+
 def send_to_telegram(compressed_data, project_name: str, chat_id, bot_token):
-    now = datetime.now()
+    now = timezone.now()
     caption = (
         f'Proyekt: {project_name}\n'
         f'📂 **Yangi ma\'lumotlar bazasi dump fayli** \n'
